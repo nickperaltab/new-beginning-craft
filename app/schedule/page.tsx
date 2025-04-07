@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import {
   format,
   addDays,
@@ -479,6 +479,39 @@ export default function SchedulePage() {
   const [showDatePicker, setShowDatePicker] = useState(false)
   const [visits, setVisits] = useState(mockVisits)
   const calendarRef = useRef<HTMLDivElement>(null)
+  
+  // New state for drag event creation
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState<{ day: Date; time: string } | null>(null)
+  const [dragEnd, setDragEnd] = useState<{ day: Date; time: string } | null>(null)
+  const [showEventTypeModal, setShowEventTypeModal] = useState(false)
+  const [tempEventData, setTempEventData] = useState<any>(null)
+
+  // Helper function to calculate position based on time
+  const calculateTimePosition = (time: string) => {
+    const [hourStr, minuteStr] = time.split(":")
+    let hour = Number.parseInt(hourStr)
+    const minute = Number.parseInt(minuteStr)
+    const isPM = time.includes("PM") && hour !== 12
+    const isAM = time.includes("AM") || hour === 12
+
+    if (isPM) hour += 12
+    if (isAM && hour === 12) hour = 0
+
+    // Calculate position relative to 7:00 AM (7)
+    const hourDiff = hour - 7
+    const minutePercentage = minute / 60
+
+    return hourDiff + minutePercentage
+  }
+
+  // Helper function to get time from Y position
+  const getTimeFromPosition = (y: number) => {
+    const hourHeight = 96 // height of one hour in pixels
+    const hour = Math.floor(y / hourHeight) + 7 // 7 is start hour
+    const minute = Math.round((y % hourHeight) / hourHeight * 60)
+    return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+  }
 
   // Filter visits based on search query, selected technicians, statuses, types
   const filteredVisits = visits.filter((visit) => {
@@ -577,7 +610,9 @@ export default function SchedulePage() {
   }
 
   // Handle visit click
-  const handleVisitClick = (visit: any) => {
+  const handleVisitClick = (e: React.MouseEvent, visit: any) => {
+    e.preventDefault()
+    e.stopPropagation()
     setSelectedVisit(visit)
     setShowVisitDetails(true)
   }
@@ -687,50 +722,128 @@ export default function SchedulePage() {
     }
   }
 
+  // Handle mouse down on calendar grid
+  const handleGridMouseDown = (e: React.MouseEvent, day: Date) => {
+    // Don't start dragging if clicking on an event
+    if ((e.target as HTMLElement).closest('.cursor-pointer')) {
+      return
+    }
+    
+    const rect = e.currentTarget.getBoundingClientRect()
+    const y = e.clientY - rect.top + (e.currentTarget as HTMLElement).scrollTop
+    const time = getTimeFromPosition(y)
+    
+    setIsDragging(true)
+    setDragStart({ day, time })
+    setDragEnd({ day, time })
+  }
+
+  // Handle mouse move while dragging
+  const handleGridMouseMove = (e: React.MouseEvent, day: Date) => {
+    if (!isDragging) return
+    
+    const rect = e.currentTarget.getBoundingClientRect()
+    const y = e.clientY - rect.top + (e.currentTarget as HTMLElement).scrollTop
+    const time = getTimeFromPosition(y)
+    
+    setDragEnd({ day, time })
+  }
+
+  // Handle mouse up to finish dragging
+  const handleGridMouseUp = () => {
+    if (isDragging && dragStart && dragEnd) {
+      setIsDragging(false)
+      setTempEventData({
+        date: format(dragStart.day, 'yyyy-MM-dd'),
+        startTime: dragStart.time,
+        endTime: dragEnd.time
+      })
+      setShowEventTypeModal(true)
+    }
+  }
+
+  // Handle event type selection
+  const handleEventTypeSelect = (type: 'visit' | 'task' | 'timeoff') => {
+    setCreateType(type)
+    setShowEventTypeModal(false)
+    setShowCreateDialog(true)
+  }
+
+  // Generate mock events for demo
+  const generateMockEvents = () => {
+    const mockEvents = []
+    const weekStart = startOfWeek(currentDate)
+    const types = ['HVAC Repair', 'Electrical', 'Plumbing', 'Maintenance']
+    const statuses = ['Scheduled', 'In Progress', 'Completed']
+    const customers = ['Acme Corp', 'TechStart Inc', 'Riverside Hospital', 'Metro Apartments']
+    const addresses = [
+      '123 Main St, Edmonton, AB',
+      '456 Tech Blvd, Edmonton, AB',
+      '789 River Rd, Edmonton, AB',
+      '100 Health Way, Edmonton, AB'
+    ]
+    const technicians = [
+      { name: 'John D.', id: 'tech-1', initials: 'JD' },
+      { name: 'Sarah M.', id: 'tech-2', initials: 'SM' },
+      { name: 'Mike R.', id: 'tech-3', initials: 'MR' },
+      { name: 'Lisa K.', id: 'tech-4', initials: 'LK' }
+    ]
+    const teamMembers = ['Nathaniel', 'Carl', 'Robert', 'Joel', 'Steven']
+    
+    for (let i = 0; i < 15; i++) {
+      const day = addDays(weekStart, Math.floor(Math.random() * 7))
+      const startHour = 7 + Math.floor(Math.random() * 8)
+      const duration = 1 + Math.floor(Math.random() * 3)
+      const jobNumber = String(i + 1).padStart(3, '0')
+      const tech = technicians[Math.floor(Math.random() * technicians.length)]
+      const teamSize = Math.floor(Math.random() * 3)
+      const team = Array.from({ length: teamSize }, () => 
+        teamMembers[Math.floor(Math.random() * teamMembers.length)]
+      )
+      
+      mockEvents.push({
+        id: `V-2024-${String(i + 1).padStart(4, '0')}`,
+        jobId: `JOB-2024-${jobNumber}`,
+        jobNumber,
+        customer: customers[Math.floor(Math.random() * customers.length)],
+        address: addresses[Math.floor(Math.random() * addresses.length)],
+        technician: tech.name,
+        techId: tech.id,
+        techInitials: tech.initials,
+        date: format(day, 'yyyy-MM-dd'),
+        startTime: `${startHour}:00`,
+        endTime: `${startHour + duration}:00`,
+        status: statuses[Math.floor(Math.random() * statuses.length)],
+        type: types[Math.floor(Math.random() * types.length)],
+        notes: 'Service visit details',
+        priority: Math.random() > 0.5 ? 'High' : 'Medium',
+        notified: Math.random() > 0.5,
+        team: team,
+        visitCount: 1,
+        color: `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`
+      })
+    }
+    
+    setVisits(mockEvents)
+  }
+
+  useEffect(() => {
+    generateMockEvents()
+  }, [])
+
   // Render month view
   const renderMonthView = () => {
     // Implementation will go here
     return <div>Month view coming soon</div>
   }
 
-  // Replace the renderWeekView function with this improved version that includes time indicators
-
   // Render week view
   const renderWeekView = () => {
     const weekDays = generateWeekDays()
     const hours = [
-      "7:00 AM",
-      "8:00 AM",
-      "9:00 AM",
-      "10:00 AM",
-      "11:00 AM",
-      "12:00 PM",
-      "1:00 PM",
-      "2:00 PM",
-      "3:00 PM",
-      "4:00 PM",
-      "5:00 PM",
-      "6:00 PM",
-      "7:00 PM",
+      "7:00 AM", "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM",
+      "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM",
     ]
-
-    // Helper function to calculate position based on time
-    const calculateTimePosition = (time: string) => {
-      const [hourStr, minuteStr] = time.split(":")
-      let hour = Number.parseInt(hourStr)
-      const minute = Number.parseInt(minuteStr)
-      const isPM = time.includes("PM") && hour !== 12
-      const isAM = time.includes("AM") || hour === 12
-
-      if (isPM) hour += 12
-      if (isAM && hour === 12) hour = 0
-
-      // Calculate position relative to 7:00 AM (7)
-      const hourDiff = hour - 7
-      const minutePercentage = minute / 60
-
-      return hourDiff + minutePercentage
-    }
 
     return (
       <div className="grid grid-cols-[80px_1fr] h-[calc(100vh-220px)] overflow-auto" ref={calendarRef}>
@@ -779,102 +892,120 @@ export default function SchedulePage() {
                   "relative border-r min-h-[1248px]", // 13 hours * 96px
                   isToday(day) && "bg-blue-50/30",
                 )}
+                onMouseDown={(e) => handleGridMouseDown(e, day)}
+                onMouseMove={(e) => handleGridMouseMove(e, day)}
+                onMouseUp={handleGridMouseUp}
               >
                 {/* Hour grid lines */}
                 {hours.map((hour, hourIndex) => (
                   <div key={`hour-${hourIndex}`} className="h-24 border-b border-dashed border-gray-200"></div>
                 ))}
 
-                {/* Current time indicator */}
-                {isToday(day) && (
+                {/* Drag selection overlay */}
+                {isDragging && dragStart && dragEnd && isSameDay(dragStart.day, day) && (
                   <div
-                    className="absolute left-0 right-0 border-t-2 border-red-500 z-10"
+                    className="absolute left-1 right-1 bg-blue-100 opacity-50 border border-blue-300 rounded-md pointer-events-none"
                     style={{
-                      top: `${(new Date().getHours() - 7 + new Date().getMinutes() / 60) * 96}px`,
+                      top: `${calculateTimePosition(dragStart.time) * 96}px`,
+                      height: `${(calculateTimePosition(dragEnd.time) - calculateTimePosition(dragStart.time)) * 96}px`,
                     }}
-                  >
-                    <div className="w-3 h-3 rounded-full bg-red-500 -mt-1.5 -ml-1.5"></div>
-                  </div>
+                  />
                 )}
 
-                {/* Visits */}
-                {dayVisits.map((visit) => {
-                  const startPosition = calculateTimePosition(visit.startTime)
-                  const endPosition = calculateTimePosition(visit.endTime)
-                  const duration = endPosition - startPosition
+                {/* Existing visits */}
+                {(() => {
+                  const groups = getOverlappingGroups(dayVisits)
+                  return groups.map((group, groupIndex) => {
+                    return group.map((visit, visitIndex) => {
+                      const startPosition = calculateTimePosition(visit.startTime)
+                      const endPosition = calculateTimePosition(visit.endTime)
+                      const duration = endPosition - startPosition
+                      const width = 100 / group.length
+                      const left = (visitIndex * width)
 
-                  return (
-                    <div
-                      key={visit.id}
-                      className={cn(
-                        "absolute left-1 right-1 rounded-md p-2 border cursor-pointer hover:shadow-md transition-shadow",
-                        getVisitBackgroundColor(visit),
-                        getPriorityBorderColor(visit.priority),
-                      )}
-                      style={{
-                        top: `${startPosition * 96}px`,
-                        height: `${Math.max(duration * 96, 32)}px`,
-                      }}
-                      onClick={() => handleVisitClick(visit)}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <div className="text-xs font-medium flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {visit.startTime} - {visit.endTime}
-                          </div>
-                        </div>
-                        {!visit.isTask && !visit.isReminder && (
-                          <Badge className={cn("text-xs py-0 h-4", getStatusBadgeColor(visit.status))}>
-                            {visit.status}
-                          </Badge>
-                        )}
-                      </div>
-
-                      {visit.isTask ? (
-                        <div className="font-medium text-sm truncate">{visit.notes}</div>
-                      ) : visit.isReminder ? (
-                        <div className="font-medium text-sm truncate">{visit.notes}</div>
-                      ) : (
-                        <>
-                          <div className="font-medium text-sm truncate">
-                            {visit.customer} {visit.jobNumber && `#${visit.jobNumber}`}
-                          </div>
-                          <div className={cn("text-xs mt-1 truncate", getVisitTextColor(visit))}>{visit.type}</div>
-                        </>
-                      )}
-
-                      {!visit.isTask && !visit.isReminder && visit.address && duration > 0.5 && (
-                        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1 truncate">
-                          <MapPin className="h-3 w-3 flex-shrink-0" />
-                          <span className="truncate">{visit.address.split(",")[0]}</span>
-                        </div>
-                      )}
-
-                      {visit.team && visit.team.length > 0 && duration > 0.75 && (
-                        <div className="flex items-center gap-1 mt-1">
-                          <Users className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                          <div className="flex -space-x-2 overflow-hidden">
-                            {visit.team.slice(0, 3).map((member: string, i: number) => (
-                              <Badge key={i} variant="outline" className="text-xs bg-white">
-                                {member}
-                              </Badge>
-                            ))}
-                            {visit.team.length > 3 && (
-                              <Badge variant="outline" className="text-xs bg-white">
-                                +{visit.team.length - 3}
+                      return (
+                        <div
+                          key={visit.id}
+                          className={cn(
+                            "absolute rounded-md p-2 border cursor-pointer hover:shadow-md transition-shadow overflow-hidden",
+                            getVisitBackgroundColor(visit),
+                            getPriorityBorderColor(visit.priority),
+                          )}
+                          style={{
+                            top: `${startPosition * 96}px`,
+                            height: `${Math.max(duration * 96, 32)}px`,
+                            left: `${left}%`,
+                            width: `${width}%`,
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            handleVisitClick(e, visit)
+                          }}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                              <div className="text-xs font-medium flex items-center gap-1 whitespace-nowrap">
+                                <Clock className="h-3 w-3 flex-shrink-0" />
+                                {visit.startTime} - {visit.endTime}
+                              </div>
+                            </div>
+                            {!visit.isTask && !visit.isReminder && (
+                              <Badge className={cn("text-xs py-0 h-4 flex-shrink-0", getStatusBadgeColor(visit.status))}>
+                                {visit.status}
                               </Badge>
                             )}
                           </div>
+
+                          {visit.isTask ? (
+                            <div className="font-medium text-sm truncate">{visit.notes}</div>
+                          ) : visit.isReminder ? (
+                            <div className="font-medium text-sm truncate">{visit.notes}</div>
+                          ) : (
+                            <>
+                              <div className="font-medium text-sm truncate">
+                                {visit.customer} {visit.jobNumber && `#${visit.jobNumber}`}
+                              </div>
+                              <div className={cn("text-xs mt-1 truncate", getVisitTextColor(visit))}>{visit.type}</div>
+                            </>
+                          )}
+
+                          {!visit.isTask && !visit.isReminder && visit.address && duration > 0.5 && (
+                            <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1 truncate">
+                              <MapPin className="h-3 w-3 flex-shrink-0" />
+                              <span className="truncate">{visit.address.split(",")[0]}</span>
+                            </div>
+                          )}
+
+                          {visit.team && visit.team.length > 0 && duration > 0.75 && (
+                            <div className="flex items-center gap-1 mt-1 truncate">
+                              <Users className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                              <div className="flex gap-1 overflow-hidden">
+                                {visit.team.slice(0, 3).map((member: string, i: number) => (
+                                  <Badge key={i} variant="outline" className="text-xs bg-white whitespace-nowrap">
+                                    {member}
+                                  </Badge>
+                                ))}
+                                {visit.team.length > 3 && (
+                                  <Badge variant="outline" className="text-xs bg-white whitespace-nowrap">
+                                    +{visit.team.length - 3}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  )
-                })}
+                      )
+                    })
+                  })
+                })()}
 
                 {/* Add visit button for empty days */}
                 {dayVisits.length === 0 && (
-                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+                  <div 
+                    className="absolute inset-0 flex items-center justify-center text-muted-foreground"
+                    onClick={(e) => e.stopPropagation()} // Prevent triggering drag event
+                  >
                     <Button
                       variant="ghost"
                       className="flex flex-col items-center gap-2 h-auto py-4"
@@ -927,6 +1058,41 @@ export default function SchedulePage() {
       default:
         return renderWeekView()
     }
+  }
+
+  // Add this function to handle overlapping events
+  const getOverlappingGroups = (events: any[]) => {
+    const sortedEvents = [...events].sort((a, b) => {
+      const aStart = calculateTimePosition(a.startTime)
+      const bStart = calculateTimePosition(b.startTime)
+      return aStart - bStart
+    })
+
+    const groups: any[][] = []
+    let currentGroup: any[] = []
+    let lastEndTime = 0
+
+    sortedEvents.forEach((event) => {
+      const startTime = calculateTimePosition(event.startTime)
+      if (startTime < lastEndTime) {
+        // Event overlaps with current group
+        currentGroup.push(event)
+      } else {
+        // Start a new group
+        if (currentGroup.length > 0) {
+          groups.push(currentGroup)
+        }
+        currentGroup = [event]
+      }
+      const endTime = calculateTimePosition(event.endTime)
+      lastEndTime = Math.max(lastEndTime, endTime)
+    })
+
+    if (currentGroup.length > 0) {
+      groups.push(currentGroup)
+    }
+
+    return groups
   }
 
   return (
@@ -1350,7 +1516,57 @@ export default function SchedulePage() {
         </DialogContent>
       </Dialog>
 
-      {/* Create Dialog */}
+      {/* Event Type Selection Modal - Simplified version */}
+      <Dialog open={showEventTypeModal} onOpenChange={setShowEventTypeModal}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Create New Event</DialogTitle>
+            <DialogDescription>What type of event would you like to create?</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id="visit"
+                  name="eventType"
+                  value="visit"
+                  className="h-4 w-4"
+                  onChange={() => handleEventTypeSelect('visit')}
+                />
+                <Label htmlFor="visit">Visit</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id="task"
+                  name="eventType"
+                  value="task"
+                  className="h-4 w-4"
+                  onChange={() => handleEventTypeSelect('task')}
+                />
+                <Label htmlFor="task">Task</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="radio"
+                  id="timeoff"
+                  name="eventType"
+                  value="timeoff"
+                  className="h-4 w-4"
+                  onChange={() => handleEventTypeSelect('timeoff')}
+                />
+                <Label htmlFor="timeoff">Time Off</Label>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEventTypeModal(false)}>Cancel</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Event Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
@@ -1359,90 +1575,168 @@ export default function SchedulePage() {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            {/* Form fields would go here based on createType */}
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right">
-                Title
-              </Label>
-              <Input id="title" className="col-span-3" />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="date" className="text-right">
-                Date
-              </Label>
-              <Input id="date" type="date" className="col-span-3" />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="time" className="text-right">
-                Time
-              </Label>
-              <div className="col-span-3 flex gap-2 items-center">
-                <Input id="start-time" type="time" className="flex-1" />
-                <span>to</span>
-                <Input id="end-time" type="time" className="flex-1" />
-              </div>
-            </div>
-
-            {createType === "Visit" && (
+            {createType === 'visit' && (
               <>
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="customer" className="text-right">
-                    Customer
-                  </Label>
-                  <Input id="customer" className="col-span-3" />
+                  <Label htmlFor="customer" className="text-right">Customer</Label>
+                  <div className="col-span-3">
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select customer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="acme">Acme Corp</SelectItem>
+                        <SelectItem value="techstart">TechStart Inc</SelectItem>
+                        <SelectItem value="riverside">Riverside Hospital</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="job" className="text-right">
-                    Job
-                  </Label>
-                  <Select>
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Select job" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="job1">JOB-2023-0045 - Tom Harris</SelectItem>
-                      <SelectItem value="job2">JOB-2023-0044 - TechSolutions Inc</SelectItem>
-                      <SelectItem value="job3">JOB-2023-0043 - Riverside Apartments</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="job" className="text-right">Job</Label>
+                  <div className="col-span-3">
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select job" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="job1">JOB-2024-001 - HVAC Installation</SelectItem>
+                        <SelectItem value="job2">JOB-2024-002 - Electrical Repair</SelectItem>
+                        <SelectItem value="job3">JOB-2024-003 - Plumbing Service</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="technician" className="text-right">
-                    Technician
-                  </Label>
-                  <Select>
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Select technician" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {technicians.map((tech) => (
-                        <SelectItem key={tech.id} value={tech.id}>
-                          {tech.name} - {tech.role}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="team" className="text-right">Team Members</Label>
+                  <div className="col-span-3">
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select team members" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <div className="space-y-2 p-2">
+                          {['John D.', 'Sarah M.', 'Mike R.', 'Lisa K.'].map((member) => (
+                            <div key={member} className="flex items-center space-x-2">
+                              <Checkbox id={`team-${member}`} />
+                              <Label htmlFor={`team-${member}`}>{member}</Label>
+                            </div>
+                          ))}
+                        </div>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {createType === 'task' && (
+              <>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="title" className="text-right">Title</Label>
+                  <Input id="title" className="col-span-3" />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="assignee" className="text-right">Assignee</Label>
+                  <div className="col-span-3">
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select assignee" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="john">John D.</SelectItem>
+                        <SelectItem value="sarah">Sarah M.</SelectItem>
+                        <SelectItem value="mike">Mike R.</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {createType === 'timeoff' && (
+              <>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="type" className="text-right">Type</Label>
+                  <div className="col-span-3">
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="vacation">Vacation</SelectItem>
+                        <SelectItem value="sick">Sick Leave</SelectItem>
+                        <SelectItem value="personal">Personal Time</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="team-member" className="text-right">Team Member</Label>
+                  <div className="col-span-3">
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select team member" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="john">John D.</SelectItem>
+                        <SelectItem value="sarah">Sarah M.</SelectItem>
+                        <SelectItem value="mike">Mike R.</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </>
             )}
 
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="notes" className="text-right">
-                Notes
-              </Label>
+              <Label htmlFor="date" className="text-right">Date</Label>
+              <Input
+                id="date"
+                type="date"
+                className="col-span-3"
+                value={tempEventData?.date}
+                readOnly
+              />
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="time" className="text-right">Time</Label>
+              <div className="col-span-3 flex gap-2 items-center">
+                <Input
+                  id="start-time"
+                  type="time"
+                  className="flex-1"
+                  value={tempEventData?.startTime}
+                  readOnly
+                />
+                <span>to</span>
+                <Input
+                  id="end-time"
+                  type="time"
+                  className="flex-1"
+                  value={tempEventData?.endTime}
+                  readOnly
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="notes" className="text-right">Notes</Label>
               <Textarea id="notes" className="col-span-3" />
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={() => setShowCreateDialog(false)}>Create {createType}</Button>
+            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>Cancel</Button>
+            <Button onClick={() => {
+              // Handle event creation here
+              setShowCreateDialog(false)
+            }}>Create {createType}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
