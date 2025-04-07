@@ -1100,7 +1100,7 @@ export default function SchedulePage() {
                 <Badge className={filtersEnabled ? "bg-green-600" : "bg-muted"}>{filtersEnabled ? "On" : "Off"}</Badge>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80" align="end">
+            <PopoverContent className="w-[600px]" align="end">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium">Filters</h4>
@@ -1114,88 +1114,130 @@ export default function SchedulePage() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label>Technicians</Label>
-                  <div className="max-h-40 overflow-y-auto space-y-2">
-                    {technicians.map((tech) => (
-                      <div key={tech.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`tech-${tech.id}`}
-                          checked={selectedTechnicians.includes(tech.id)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedTechnicians([...selectedTechnicians, tech.id])
-                            } else {
-                              setSelectedTechnicians(selectedTechnicians.filter((id) => id !== tech.id))
-                            }
-                          }}
-                        />
-                        <Label htmlFor={`tech-${tech.id}`} className="flex items-center gap-2 cursor-pointer">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tech.color }}></div>
-                          {tech.name}
-                        </Label>
+                <div className="grid grid-cols-2 gap-6">
+                  {/* Left Column */}
+                  <div className="space-y-6">
+                    {/* Event Types */}
+                    <div className="space-y-2">
+                      <Label>Event</Label>
+                      <div className="space-y-2">
+                        {[
+                          "Job",
+                          "Job Request",
+                          "Visit/on site assessment",
+                          "Time off"
+                        ].map((type) => (
+                          <div key={type} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`type-${type}`}
+                              checked={selectedTypes.includes(type)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedTypes([...selectedTypes, type])
+                                } else {
+                                  setSelectedTypes(selectedTypes.filter((t) => t !== type))
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`type-${type}`} className="cursor-pointer">
+                              {type}
+                            </Label>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </div>
 
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <div className="space-y-2">
-                    {["Confirmed", "Scheduled", "Pending", "In Progress", "Completed", "Cancelled"].map((status) => (
-                      <div key={status} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`status-${status}`}
-                          checked={selectedStatuses.includes(status)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedStatuses([...selectedStatuses, status])
-                            } else {
-                              setSelectedStatuses(selectedStatuses.filter((s) => s !== status))
-                            }
-                          }}
-                        />
-                        <Label htmlFor={`status-${status}`} className="cursor-pointer">
-                          <Badge className={cn("ml-1", getStatusBadgeColor(status))}>{status}</Badge>
-                        </Label>
+                    {/* Job Types */}
+                    <div className="space-y-2">
+                      <Label>Job type</Label>
+                      <div className="space-y-2">
+                        {[
+                          "Repair",
+                          "Maintenance"
+                        ].map((type) => (
+                          <div key={type} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`jobtype-${type}`}
+                              checked={selectedTypes.includes(type)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedTypes([...selectedTypes, type])
+                                } else {
+                                  setSelectedTypes(selectedTypes.filter((t) => t !== type))
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`jobtype-${type}`} className="cursor-pointer">
+                              {type}
+                            </Label>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label>Visit Type</Label>
-                  <div className="space-y-2">
-                    {[
-                      "HVAC Repair",
-                      "HVAC Installation",
-                      "HVAC Maintenance",
-                      "Electrical",
-                      "Electrical Inspection",
-                      "Plumbing",
-                      "Maintenance",
-                      "Estimate - HVAC",
-                      "Estimate - Ductwork",
-                      "Task",
-                      "Reminder",
-                    ].map((type) => (
-                      <div key={type} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`type-${type}`}
-                          checked={selectedTypes.includes(type)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedTypes([...selectedTypes, type])
-                            } else {
-                              setSelectedTypes(selectedTypes.filter((t) => t !== type))
-                            }
-                          }}
-                        />
-                        <Label htmlFor={`type-${type}`} className="cursor-pointer">
-                          {type}
-                        </Label>
+                  {/* Right Column */}
+                  <div className="space-y-6">
+                    {/* Job Status */}
+                    <div className="space-y-2">
+                      <Label>Job status</Label>
+                      <div className="space-y-2">
+                        {[
+                          "Pending",
+                          "In progress",
+                          "Completed",
+                          "Rejected",
+                          "Cancelled"
+                        ].map((status) => (
+                          <div key={status} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`status-${status}`}
+                              checked={selectedStatuses.includes(status)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedStatuses([...selectedStatuses, status])
+                                } else {
+                                  setSelectedStatuses(selectedStatuses.filter((s) => s !== status))
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`status-${status}`} className="cursor-pointer">
+                              {status}
+                            </Label>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </div>
+
+                    {/* Team Members */}
+                    <div className="space-y-2">
+                      <Label>Team</Label>
+                      <div className="space-y-2">
+                        {[
+                          "Betsy",
+                          "Jane",
+                          "Joe",
+                          "John"
+                        ].map((tech) => (
+                          <div key={tech} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`tech-${tech}`}
+                              checked={selectedTechnicians.includes(tech)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedTechnicians([...selectedTechnicians, tech])
+                                } else {
+                                  setSelectedTechnicians(selectedTechnicians.filter((t) => t !== tech))
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`tech-${tech}`} className="cursor-pointer">
+                              {tech}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
 
