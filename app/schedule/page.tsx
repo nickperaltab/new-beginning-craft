@@ -25,6 +25,8 @@ import {
   Search,
   CalendarDays,
   Calendar,
+  AlertTriangle,
+  CalendarOff,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -486,6 +488,10 @@ export default function SchedulePage() {
   const [dragEnd, setDragEnd] = useState<{ day: Date; time: string } | null>(null)
   const [showEventTypeModal, setShowEventTypeModal] = useState(false)
   const [tempEventData, setTempEventData] = useState<any>(null)
+
+  // Add state for conflicts and unscheduled views
+  const [showConflicts, setShowConflicts] = useState(false)
+  const [showUnscheduled, setShowUnscheduled] = useState(false)
 
   // Helper function to calculate position based on time
   const calculateTimePosition = (time: string) => {
@@ -1095,6 +1101,61 @@ export default function SchedulePage() {
     return groups
   }
 
+  // Add function to check for conflicts
+  const getScheduleConflicts = () => {
+    const conflicts: any[] = []
+    const groups = getOverlappingGroups(visits)
+    
+    groups.forEach(group => {
+      if (group.length > 1) {
+        // Check if any team members are double-booked
+        const teamMembers = new Set<string>()
+        let hasConflict = false
+        
+        group.forEach(visit => {
+          visit.team?.forEach((member: string) => {
+            if (teamMembers.has(member)) {
+              hasConflict = true
+            }
+            teamMembers.add(member)
+          })
+        })
+        
+        if (hasConflict) {
+          conflicts.push(...group)
+        }
+      }
+    })
+    
+    return conflicts
+  }
+
+  // Mock unscheduled visits
+  const unscheduledVisits = [
+    {
+      id: "UNSCH-001",
+      jobId: "JOB-2024-099",
+      jobNumber: "99",
+      customer: "Metro Mall",
+      address: "789 Shopping Ave, Edmonton, AB",
+      type: "HVAC Repair",
+      priority: "High",
+      notes: "Emergency AC repair needed",
+      status: "Unassigned"
+    },
+    {
+      id: "UNSCH-002",
+      jobId: "JOB-2024-100",
+      jobNumber: "100",
+      customer: "City Library",
+      address: "456 Book St, Edmonton, AB",
+      type: "Electrical",
+      priority: "Medium",
+      notes: "Lighting system maintenance",
+      status: "Unassigned"
+    }
+  ]
+
   return (
     <div className="flex flex-col gap-4 p-4">
       {/* Header */}
@@ -1145,295 +1206,250 @@ export default function SchedulePage() {
         </div>
       </div>
 
-      {/* Calendar Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Popover open={showViewSelector} onOpenChange={setShowViewSelector}>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="min-w-[120px]">
-                {viewMode.charAt(0).toUpperCase() + viewMode.slice(1)}
-                <ChevronRight className="h-4 w-4 ml-2" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-56 p-0" align="start">
-              <div className="flex flex-col">
-                <Button
-                  variant="ghost"
-                  className="justify-start rounded-none h-12"
-                  onClick={() => handleViewSelect("month")}
-                >
-                  Month
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="justify-start rounded-none h-12"
-                  onClick={() => handleViewSelect("week")}
-                >
-                  Week
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="justify-start rounded-none h-12"
-                  onClick={() => handleViewSelect("day")}
-                >
-                  Day
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="justify-start rounded-none h-12"
-                  onClick={() => handleViewSelect("map")}
-                >
-                  Map
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="justify-start rounded-none h-12"
-                  onClick={() => handleViewSelect("list")}
-                >
-                  List
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
+      {/* Calendar Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-4">
+          <Button variant="outline" size="icon" onClick={goToPrevious}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
 
-          <div className="flex items-center gap-1">
-            <Button variant="outline" size="icon" onClick={goToPrevious}>
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-
-            <Popover open={showDatePicker} onOpenChange={setShowDatePicker}>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="min-w-[180px]">
-                  {formatDateRange()}
-                  <ChevronRight className="h-4 w-4 ml-2" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <div className="p-4">
-                  <div className="text-center mb-4">
-                    <div className="flex items-center justify-between">
-                      <Button variant="ghost" size="icon">
-                        <ChevronLeft className="h-4 w-4" />
-                      </Button>
-                      <div className="font-medium">March 2024</div>
-                      <Button variant="ghost" size="icon">
-                        <ChevronRight className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-7 gap-2 text-center">
-                    <div className="text-xs text-muted-foreground">SU</div>
-                    <div className="text-xs text-muted-foreground">MO</div>
-                    <div className="text-xs text-muted-foreground">TU</div>
-                    <div className="text-xs text-muted-foreground">WE</div>
-                    <div className="text-xs text-muted-foreground">TH</div>
-                    <div className="text-xs text-muted-foreground">FR</div>
-                    <div className="text-xs text-muted-foreground">SA</div>
-
-                    {/* Calendar days would go here */}
-                    {Array.from({ length: 31 }, (_, i) => (
-                      <Button
-                        key={i}
-                        variant="ghost"
-                        size="sm"
-                        className={cn("h-8 w-8 p-0", i + 1 === 7 && "bg-blue-100")}
-                        onClick={() => {
-                          const newDate = new Date(2024, 2, i + 1)
-                          setCurrentDate(newDate)
-                          setShowDatePicker(false)
-                        }}
-                      >
-                        {i + 1}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
-
-            <Button variant="outline" size="icon" onClick={goToNext}>
-              <ChevronRight className="h-4 w-4" />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={() => setShowDatePicker(true)}>
+              <Calendar className="h-4 w-4 mr-2" />
+              {format(startOfWeek(currentDate), "MMM d")} -{" "}
+              {format(endOfWeek(currentDate), "MMM d, yyyy")}
             </Button>
           </div>
+
+          <Button variant="outline" size="icon" onClick={goToNext}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+
+          <Button variant="outline" onClick={goToToday}>Today</Button>
         </div>
 
         <div className="flex items-center gap-2">
+          <Button
+            variant={showConflicts ? "secondary" : "outline"}
+            className="flex items-center gap-2"
+            onClick={() => setShowConflicts(!showConflicts)}
+          >
+            <AlertTriangle className="h-4 w-4" />
+            Conflicts
+            {showConflicts && getScheduleConflicts().length > 0 && (
+              <Badge variant="destructive" className="ml-1">{getScheduleConflicts().length}</Badge>
+            )}
+          </Button>
+
+          <Button
+            variant={showUnscheduled ? "secondary" : "outline"}
+            className="flex items-center gap-2"
+            onClick={() => setShowUnscheduled(!showUnscheduled)}
+          >
+            <CalendarOff className="h-4 w-4" />
+            Unscheduled
+            {unscheduledVisits.length > 0 && (
+              <Badge variant="secondary" className="ml-1">{unscheduledVisits.length}</Badge>
+            )}
+          </Button>
+
           <Popover open={showFilters} onOpenChange={setShowFilters}>
             <PopoverTrigger asChild>
-              <Button variant={filtersEnabled ? "default" : "outline"} className="gap-2">
+              <Button
+                variant={filtersEnabled ? "secondary" : "outline"}
+                className="flex items-center gap-2"
+              >
                 <Filter className="h-4 w-4" />
                 Filters
-                <Badge className={filtersEnabled ? "bg-green-600" : "bg-muted"}>{filtersEnabled ? "On" : "Off"}</Badge>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[600px]" align="end">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-medium">Filters</h4>
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor="filter-toggle">Enabled</Label>
-                    <Checkbox
-                      id="filter-toggle"
-                      checked={filtersEnabled}
-                      onCheckedChange={(checked) => setFiltersEnabled(!!checked)}
-                    />
-                  </div>
+            <PopoverContent align="end" className="w-[500px]">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-medium leading-none">Filters</h4>
+                  <Badge variant={filtersEnabled ? "default" : "outline"}>
+                    {filtersEnabled ? "Enabled" : "Disabled"}
+                  </Badge>
                 </div>
-
-                <div className="grid grid-cols-2 gap-6">
-                  {/* Left Column */}
-                  <div className="space-y-6">
-                    {/* Event Types */}
-                    <div className="space-y-2">
-                      <Label>Event</Label>
-                      <div className="space-y-2">
-                        {[
-                          "Job",
-                          "Job Request",
-                          "Visit/on site assessment",
-                          "Time off"
-                        ].map((type) => (
-                          <div key={type} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`type-${type}`}
-                              checked={selectedTypes.includes(type)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedTypes([...selectedTypes, type])
-                                } else {
-                                  setSelectedTypes(selectedTypes.filter((t) => t !== type))
-                                }
-                              }}
-                            />
-                            <Label htmlFor={`type-${type}`} className="cursor-pointer">
-                              {type}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Job Types */}
-                    <div className="space-y-2">
-                      <Label>Job type</Label>
-                      <div className="space-y-2">
-                        {[
-                          "Repair",
-                          "Maintenance"
-                        ].map((type) => (
-                          <div key={type} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`jobtype-${type}`}
-                              checked={selectedTypes.includes(type)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedTypes([...selectedTypes, type])
-                                } else {
-                                  setSelectedTypes(selectedTypes.filter((t) => t !== type))
-                                }
-                              }}
-                            />
-                            <Label htmlFor={`jobtype-${type}`} className="cursor-pointer">
-                              {type}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column */}
-                  <div className="space-y-6">
-                    {/* Job Status */}
-                    <div className="space-y-2">
-                      <Label>Job status</Label>
-                      <div className="space-y-2">
-                        {[
-                          "Pending",
-                          "In progress",
-                          "Completed",
-                          "Rejected",
-                          "Cancelled"
-                        ].map((status) => (
-                          <div key={status} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`status-${status}`}
-                              checked={selectedStatuses.includes(status)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedStatuses([...selectedStatuses, status])
-                                } else {
-                                  setSelectedStatuses(selectedStatuses.filter((s) => s !== status))
-                                }
-                              }}
-                            />
-                            <Label htmlFor={`status-${status}`} className="cursor-pointer">
-                              {status}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Team Members */}
-                    <div className="space-y-2">
-                      <Label>Team</Label>
-                      <div className="space-y-2">
-                        {[
-                          "Betsy",
-                          "Jane",
-                          "Joe",
-                          "John"
-                        ].map((tech) => (
-                          <div key={tech} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`tech-${tech}`}
-                              checked={selectedTechnicians.includes(tech)}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  setSelectedTechnicians([...selectedTechnicians, tech])
-                                } else {
-                                  setSelectedTechnicians(selectedTechnicians.filter((t) => t !== tech))
-                                }
-                              }}
-                            />
-                            <Label htmlFor={`tech-${tech}`} className="cursor-pointer">
-                              {tech}
-                            </Label>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => {
-                    setSelectedTechnicians([])
+                    setFiltersEnabled(false)
                     setSelectedStatuses([])
                     setSelectedTypes([])
-                    setSearchQuery("")
+                    setSelectedTechnicians([])
                   }}
                 >
                   Clear All Filters
                 </Button>
               </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                {/* Left Column */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Event</h4>
+                    <div className="grid gap-2">
+                      {[
+                        "Job",
+                        "Job Request",
+                        "Visit/on site assessment",
+                        "Time off"
+                      ].map((type) => (
+                        <div key={type} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`type-${type}`}
+                            checked={selectedTypes.includes(type)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedTypes([...selectedTypes, type])
+                                setFiltersEnabled(true)
+                              } else {
+                                setSelectedTypes(selectedTypes.filter((t) => t !== type))
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`type-${type}`}>{type}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Job type</h4>
+                    <div className="grid gap-2">
+                      {[
+                        "Repair",
+                        "Maintenance"
+                      ].map((type) => (
+                        <div key={type} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`jobtype-${type}`}
+                            checked={selectedTypes.includes(type)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedTypes([...selectedTypes, type])
+                                setFiltersEnabled(true)
+                              } else {
+                                setSelectedTypes(selectedTypes.filter((t) => t !== type))
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`jobtype-${type}`}>{type}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Job status</h4>
+                    <div className="grid gap-2">
+                      {[
+                        "Pending",
+                        "In progress",
+                        "Completed",
+                        "Rejected",
+                        "Cancelled"
+                      ].map((status) => (
+                        <div key={status} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`status-${status}`}
+                            checked={selectedStatuses.includes(status)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedStatuses([...selectedStatuses, status])
+                                setFiltersEnabled(true)
+                              } else {
+                                setSelectedStatuses(selectedStatuses.filter((s) => s !== status))
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`status-${status}`}>{status}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Team</h4>
+                    <div className="grid gap-2">
+                      {[
+                        "Betsy",
+                        "Jane",
+                        "Joe",
+                        "John"
+                      ].map((member) => (
+                        <div key={member} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`team-${member}`}
+                            checked={selectedTechnicians.includes(member)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedTechnicians([...selectedTechnicians, member])
+                                setFiltersEnabled(true)
+                              } else {
+                                setSelectedTechnicians(selectedTechnicians.filter((t) => t !== member))
+                              }
+                            }}
+                          />
+                          <Label htmlFor={`team-${member}`}>{member}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </PopoverContent>
           </Popover>
-
-          <Button onClick={() => handleCreateNew("Visit")}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Visit
-          </Button>
         </div>
       </div>
 
       {/* Calendar View */}
-      <Card>
-        <CardContent className="p-0 overflow-hidden">{renderCurrentView()}</CardContent>
-      </Card>
+      <div className="flex">
+        <Card className="flex-1">
+          <CardContent className="p-0 overflow-hidden">{renderCurrentView()}</CardContent>
+        </Card>
+
+        {/* Unscheduled Events Panel */}
+        {showUnscheduled && (
+          <div className="w-80 ml-4 border rounded-lg bg-gray-50">
+            <div className="p-4 border-b bg-white rounded-t-lg">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-medium">Unscheduled Events</h3>
+                <Button variant="outline" size="sm" onClick={() => setShowCreateDialog(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Event
+                </Button>
+              </div>
+            </div>
+            <div className="p-4 space-y-3 overflow-auto max-h-[calc(100vh-220px)]">
+              {unscheduledVisits.map((visit) => (
+                <div
+                  key={visit.id}
+                  className="bg-white border rounded-md p-3 hover:shadow-sm transition-shadow cursor-pointer"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium">{visit.customer}</span>
+                    <Badge variant="outline">{visit.priority}</Badge>
+                  </div>
+                  <div className="text-sm text-muted-foreground mb-2">
+                    {visit.type} - #{visit.jobNumber}
+                  </div>
+                  <div className="text-sm">{visit.notes}</div>
+                  <div className="flex items-center gap-2 mt-2 text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4" />
+                    {visit.address}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Visit Details Dialog */}
       <Dialog open={showVisitDetails} onOpenChange={setShowVisitDetails}>
@@ -1740,6 +1756,20 @@ export default function SchedulePage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Conflicts Warning */}
+      {showConflicts && getScheduleConflicts().length > 0 && (
+        <div className="border-l-4 border-red-500 bg-red-50 p-4 mb-4 rounded-r-lg">
+          <div className="flex items-center gap-2 text-red-700 mb-2">
+            <AlertTriangle className="h-5 w-5" />
+            <h3 className="font-medium">Schedule Conflicts Detected</h3>
+          </div>
+          <div className="text-sm text-red-600">
+            There are {getScheduleConflicts().length} events with team member scheduling conflicts.
+            Please review and adjust the assignments.
+          </div>
+        </div>
+      )}
     </div>
   )
 }

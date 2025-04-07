@@ -2,6 +2,7 @@ import { Bell, HelpCircle, Search, Settings, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { UserNav } from "@/components/user-nav"
+import Link from "next/link"
 
 export function Header() {
   return (
@@ -27,9 +28,11 @@ export function Header() {
         <Button variant="ghost" size="icon">
           <HelpCircle className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon">
-          <Settings className="h-5 w-5" />
-        </Button>
+        <Link href="/settings">
+          <Button variant="ghost" size="icon">
+            <Settings className="h-5 w-5" />
+          </Button>
+        </Link>
         <UserNav />
       </div>
     </header>

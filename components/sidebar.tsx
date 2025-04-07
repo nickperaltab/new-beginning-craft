@@ -14,6 +14,7 @@ import {
   Store,
   ChevronDown,
   UserPlus,
+  Settings,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -34,7 +35,21 @@ const navItems = [
   { name: "More Apps", href: "/apps", icon: Activity, hasDropdown: true },
   { separator: true },
   { name: "App Marketplace", href: "/marketplace", icon: Store },
-]
+] satisfies Array<NavItem>
+
+type NavItem = {
+  name: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  hasDropdown?: boolean
+  separator?: never
+} | {
+  separator: true
+  name?: never
+  href?: never
+  icon?: never
+  hasDropdown?: never
+}
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -46,7 +61,7 @@ export function Sidebar() {
       </div>
       <div className="flex flex-col flex-1">
         {navItems.map((item, index) => {
-          if (item.separator) {
+          if ('separator' in item) {
             return <Separator key={`sep-${index}`} className="my-2 bg-[#0a2a6c]" />
           }
 
@@ -54,12 +69,12 @@ export function Sidebar() {
           const Icon = item.icon
 
           return (
-            <Link key={item.href} href={item.href}>
+            <Link key={item.href} href={item.href} className="block">
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start gap-3 rounded-none px-4 py-2 text-white hover:bg-[#0a2a6c]",
-                  isActive && "bg-[#0066ff] hover:bg-[#0066ff]",
+                  "w-full justify-start gap-3 rounded-none px-4 py-2 text-white hover:bg-transparent hover:text-[#8ab4f8]",
+                  isActive && "bg-[#0066ff] hover:bg-[#0066ff] hover:text-white",
                 )}
               >
                 <Icon className="h-5 w-5" />
