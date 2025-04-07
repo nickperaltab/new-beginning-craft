@@ -184,10 +184,12 @@ export default function NewJobPage() {
               Cancel
             </Button>
           </Link>
-          <Button className="gap-2">
-            <Save className="h-4 w-4" />
-            Create Job
-          </Button>
+          <Link href="/jobs/JOB-2023-0045">
+            <Button className="gap-2">
+              <Save className="h-4 w-4" />
+              Create Job
+            </Button>
+          </Link>
         </div>
       </div>
 

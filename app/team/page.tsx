@@ -45,92 +45,122 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
+// Update type definitions at the top of the file
+type Status = "Available" | "On Job" | "Off Duty" | "Pending" | "Approved" | "Submitted" | "Pending Approval" | "Not Submitted" | "Rejected"
+type BaseSkill = "HVAC" | "Plumbing" | "Electrical" | "General" | "Carpentry" | "Controls" | "Project"
+type Skill = BaseSkill | `${BaseSkill} Installation` | `${BaseSkill} Repair` | "Water Heaters" | "Project Management" | "Customer Relations" | "Controls Programming" | "Automation" | "Refrigeration" | "Lighting"
+type BaseRole = "Technician" | "Supervisor" | "Manager" | "Admin" | "Specialist"
+type Role = BaseRole | `${BaseSkill} ${BaseRole}` | "Project Manager" | "Controls Specialist"
+
+interface TeamMember {
+  id: string
+  name: string
+  email: string
+  image: string | undefined
+  initials: string
+  role: Role
+  status: Status
+  location: string
+  eta?: string
+  skills: Skill[]
+  timesheet: {
+    status: Status
+    weekOf?: string
+    totalHours?: number
+    submittedDate?: string
+  }
+}
+
+const getStatusColor = (status: Status): string => {
+  switch (status) {
+    case "Available":
+      return "bg-green-500"
+    case "On Job":
+      return "bg-blue-500"
+    case "Off Duty":
+      return "bg-gray-400"
+    default:
+      return "bg-gray-400"
+  }
+}
+
+const getSkillBadgeColor = (skill: Skill): string => {
+  if (skill.includes("HVAC")) return "bg-blue-100 text-blue-800 border-blue-200"
+  if (skill.includes("Electrical")) return "bg-yellow-100 text-yellow-800 border-yellow-200"
+  if (skill.includes("Plumbing")) return "bg-green-100 text-green-800 border-green-200"
+  if (skill.includes("Controls")) return "bg-purple-100 text-purple-800 border-purple-200"
+  if (skill.includes("Project")) return "bg-indigo-100 text-indigo-800 border-indigo-200"
+  return "bg-gray-100 text-gray-800 border-gray-200"
+}
+
+const getCertificationBadgeColor = (cert: string): string => {
+  return "bg-orange-100 text-orange-800 border-orange-200"
+}
+
+const getRoleIcon = (role: Role) => {
+  if (role.includes("HVAC")) return <Wrench className="h-5 w-5" />
+  if (role.includes("Electrician")) return <Zap className="h-5 w-5" />
+  if (role.includes("Plumber")) return <Wrench className="h-5 w-5" />
+  if (role.includes("Project Manager")) return <Briefcase className="h-5 w-5" />
+  if (role.includes("Controls")) return <Zap className="h-5 w-5" />
+  return <Users className="h-5 w-5" />
+}
+
+const getTimesheetStatusColor = (status: Status): string => {
+  switch (status) {
+    case "Approved":
+      return "bg-green-500"
+    case "Submitted":
+      return "bg-blue-500"
+    case "Pending Approval":
+      return "bg-yellow-500"
+    case "Not Submitted":
+      return "bg-gray-400"
+    case "Rejected":
+      return "bg-red-500"
+    default:
+      return "bg-gray-400"
+  }
+}
+
 export default function TeamPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedRole, setSelectedRole] = useState("all")
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [viewMode, setViewMode] = useState("cards")
-  const [showTimesheetApprovals, setShowTimesheetApprovals] = useState(false)
+  const [activeTab, setActiveTab] = useState("all")
 
   // Mock team members data
-  const teamMembers = [
+  const teamMembers: TeamMember[] = [
     {
       id: "tech1",
       name: "John Smith",
-      role: "HVAC Technician",
-      image: null,
+      email: "john.smith@fieldpro.com",
+      image: undefined,
       initials: "JS",
+      role: "HVAC Technician",
       status: "On Job",
       location: "Downtown Office Tower",
       eta: "2 hours remaining",
-      phone: "(555) 123-4567",
-      email: "john.smith@fieldpro.com",
       skills: ["HVAC Installation", "HVAC Repair", "Electrical"],
-      certifications: ["HVAC Certified", "EPA 608", "OSHA 10"],
-      performance: {
-        jobsCompleted: 145,
-        onTimeRate: 94,
-        customerSatisfaction: 4.8,
-        utilizationRate: 87,
-      },
-      currentAssignment: {
-        jobId: "JOB-2023-0045",
-        customer: "Acme Corp",
-        type: "HVAC Repair",
-      },
-      upcomingAssignments: [
-        {
-          id: "V-2023-5682",
-          customer: "Downtown Office Tower",
-          time: "Tomorrow, 10:00 AM",
-          type: "HVAC Installation",
-        },
-        {
-          id: "V-2023-5690",
-          customer: "City Hospital",
-          time: "Wed, 2:00 PM",
-          type: "Maintenance",
-        },
-      ],
       timesheet: {
         status: "Pending Approval",
         weekOf: "Apr 1, 2023",
-        totalHours: 32,
-        submittedDate: "Apr 4, 2023",
-      },
+        totalHours: 42,
+        submittedDate: "Apr 7, 2023"
+      }
     },
     {
       id: "tech2",
       name: "Sarah Johnson",
-      role: "Electrician",
+      email: "sarah.johnson@fieldpro.com",
       image: null,
       initials: "SJ",
+      role: "Electrician",
       status: "On Job",
       location: "TechSolutions Inc",
       eta: "1 hour remaining",
-      phone: "(555) 234-5678",
-      email: "sarah.johnson@fieldpro.com",
       skills: ["Electrical Installation", "Electrical Repair", "Controls"],
-      certifications: ["Licensed Electrician", "OSHA 30", "First Aid"],
-      performance: {
-        jobsCompleted: 132,
-        onTimeRate: 96,
-        customerSatisfaction: 4.9,
-        utilizationRate: 92,
-      },
-      currentAssignment: {
-        jobId: "JOB-2023-0044",
-        customer: "TechSolutions Inc",
-        type: "Electrical Upgrade",
-      },
-      upcomingAssignments: [
-        {
-          id: "V-2023-5683",
-          customer: "Parkside Mall",
-          time: "Thu, 9:00 AM",
-          type: "Electrical Inspection",
-        },
-      ],
       timesheet: {
         status: "Pending Approval",
         weekOf: "Apr 1, 2023",
@@ -141,31 +171,14 @@ export default function TeamPage() {
     {
       id: "tech3",
       name: "Mike Davis",
-      role: "Plumber",
+      email: "mike.davis@fieldpro.com",
       image: null,
       initials: "MD",
+      role: "Plumber",
       status: "Available",
       location: "Office",
       eta: "Available now",
-      phone: "(555) 345-6789",
-      email: "mike.davis@fieldpro.com",
       skills: ["Plumbing Installation", "Plumbing Repair", "Water Heaters"],
-      certifications: ["Licensed Plumber", "Backflow Certified", "OSHA 10"],
-      performance: {
-        jobsCompleted: 118,
-        onTimeRate: 91,
-        customerSatisfaction: 4.7,
-        utilizationRate: 84,
-      },
-      currentAssignment: null,
-      upcomingAssignments: [
-        {
-          id: "V-2023-5680",
-          customer: "Riverside Apartments",
-          time: "Tomorrow, 9:00 AM",
-          type: "Plumbing",
-        },
-      ],
       timesheet: {
         status: "Approved",
         weekOf: "Apr 1, 2023",
@@ -176,35 +189,14 @@ export default function TeamPage() {
     {
       id: "tech4",
       name: "Lisa Wong",
-      role: "Project Manager",
+      email: "lisa.wong@fieldpro.com",
       image: null,
       initials: "LW",
+      role: "Project Manager",
       status: "On Job",
       location: "City Hospital",
       eta: "1 hour remaining",
-      phone: "(555) 456-7890",
-      email: "lisa.wong@fieldpro.com",
       skills: ["Project Management", "HVAC", "Customer Relations"],
-      certifications: ["PMP", "HVAC Certified", "Leadership Training"],
-      performance: {
-        jobsCompleted: 87,
-        onTimeRate: 98,
-        customerSatisfaction: 4.9,
-        utilizationRate: 95,
-      },
-      currentAssignment: {
-        jobId: "JOB-2023-0042",
-        customer: "City Hospital",
-        type: "Preventative Maintenance",
-      },
-      upcomingAssignments: [
-        {
-          id: "V-2023-5681",
-          customer: "City Hospital",
-          time: "Tomorrow, 1:00 PM",
-          type: "Maintenance",
-        },
-      ],
       timesheet: {
         status: "Submitted",
         weekOf: "Apr 1, 2023",
@@ -215,31 +207,14 @@ export default function TeamPage() {
     {
       id: "tech5",
       name: "Robert Chen",
-      role: "Electrician",
+      email: "robert.chen@fieldpro.com",
       image: null,
       initials: "RC",
+      role: "Electrician",
       status: "Off Duty",
       location: "Off Duty",
       eta: "Returns tomorrow",
-      phone: "(555) 567-8901",
-      email: "robert.chen@fieldpro.com",
       skills: ["Electrical Installation", "Electrical Repair", "Lighting"],
-      certifications: ["Licensed Electrician", "OSHA 10", "Energy Efficiency"],
-      performance: {
-        jobsCompleted: 110,
-        onTimeRate: 93,
-        customerSatisfaction: 4.6,
-        utilizationRate: 82,
-      },
-      currentAssignment: null,
-      upcomingAssignments: [
-        {
-          id: "V-2023-5691",
-          customer: "Downtown Office Tower",
-          time: "Wed, 9:00 AM",
-          type: "Electrical",
-        },
-      ],
       timesheet: {
         status: "Not Submitted",
         weekOf: "Apr 1, 2023",
@@ -250,31 +225,14 @@ export default function TeamPage() {
     {
       id: "tech6",
       name: "Emily Wilson",
-      role: "HVAC Technician",
+      email: "emily.wilson@fieldpro.com",
       image: null,
       initials: "EW",
+      role: "HVAC Technician",
       status: "Available",
       location: "Office",
       eta: "Available now",
-      phone: "(555) 678-9012",
-      email: "emily.wilson@fieldpro.com",
       skills: ["HVAC Installation", "HVAC Repair", "Refrigeration"],
-      certifications: ["HVAC Certified", "EPA 608", "NATE Certified"],
-      performance: {
-        jobsCompleted: 98,
-        onTimeRate: 95,
-        customerSatisfaction: 4.8,
-        utilizationRate: 86,
-      },
-      currentAssignment: null,
-      upcomingAssignments: [
-        {
-          id: "V-2023-5692",
-          customer: "Acme Corp",
-          time: "Tomorrow, 3:00 PM",
-          type: "HVAC Repair",
-        },
-      ],
       timesheet: {
         status: "Pending Approval",
         weekOf: "Apr 1, 2023",
@@ -285,35 +243,14 @@ export default function TeamPage() {
     {
       id: "tech7",
       name: "David Kim",
-      role: "Controls Specialist",
+      email: "david.kim@fieldpro.com",
       image: null,
       initials: "DK",
+      role: "Controls Specialist",
       status: "On Job",
       location: "TechSolutions Inc",
       eta: "3 hours remaining",
-      phone: "(555) 789-0123",
-      email: "david.kim@fieldpro.com",
       skills: ["Controls Programming", "Automation", "Electrical"],
-      certifications: ["BAS Certified", "OSHA 10", "Energy Management"],
-      performance: {
-        jobsCompleted: 76,
-        onTimeRate: 97,
-        customerSatisfaction: 4.9,
-        utilizationRate: 89,
-      },
-      currentAssignment: {
-        jobId: "JOB-2023-0044",
-        customer: "TechSolutions Inc",
-        type: "Electrical Upgrade",
-      },
-      upcomingAssignments: [
-        {
-          id: "V-2023-5693",
-          customer: "City Hospital",
-          time: "Thu, 10:00 AM",
-          type: "Controls",
-        },
-      ],
       timesheet: {
         status: "Approved",
         weekOf: "Apr 1, 2023",
@@ -339,63 +276,6 @@ export default function TeamPage() {
   // Get pending timesheet approvals
   const pendingTimesheetApprovals = teamMembers.filter((member) => member.timesheet.status === "Pending Approval")
 
-  // Get status color
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "Available":
-        return "bg-green-500"
-      case "On Job":
-        return "bg-blue-500"
-      case "Off Duty":
-        return "bg-gray-400"
-      default:
-        return "bg-gray-400"
-    }
-  }
-
-  // Get skill badge color
-  const getSkillBadgeColor = (skill) => {
-    if (skill.includes("HVAC")) return "bg-blue-100 text-blue-800 border-blue-200"
-    if (skill.includes("Electrical")) return "bg-yellow-100 text-yellow-800 border-yellow-200"
-    if (skill.includes("Plumbing")) return "bg-green-100 text-green-800 border-green-200"
-    if (skill.includes("Controls")) return "bg-purple-100 text-purple-800 border-purple-200"
-    if (skill.includes("Project")) return "bg-indigo-100 text-indigo-800 border-indigo-200"
-    return "bg-gray-100 text-gray-800 border-gray-200"
-  }
-
-  // Get certification badge color
-  const getCertificationBadgeColor = (cert) => {
-    return "bg-orange-100 text-orange-800 border-orange-200"
-  }
-
-  // Get role icon
-  const getRoleIcon = (role) => {
-    if (role.includes("HVAC")) return <Wrench className="h-5 w-5" />
-    if (role.includes("Electrician")) return <Zap className="h-5 w-5" />
-    if (role.includes("Plumber")) return <Wrench className="h-5 w-5" />
-    if (role.includes("Project Manager")) return <Briefcase className="h-5 w-5" />
-    if (role.includes("Controls")) return <Zap className="h-5 w-5" />
-    return <Users className="h-5 w-5" />
-  }
-
-  // Get timesheet status color
-  const getTimesheetStatusColor = (status) => {
-    switch (status) {
-      case "Approved":
-        return "bg-green-500"
-      case "Submitted":
-        return "bg-blue-500"
-      case "Pending Approval":
-        return "bg-yellow-500"
-      case "Not Submitted":
-        return "bg-gray-400"
-      case "Rejected":
-        return "bg-red-500"
-      default:
-        return "bg-gray-400"
-    }
-  }
-
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex flex-col gap-2">
@@ -420,7 +300,7 @@ export default function TeamPage() {
               <span className="text-sm text-muted-foreground">
                 {pendingTimesheetApprovals.length} team members have submitted timesheets for the week of Apr 1, 2023
               </span>
-              <Button variant="outline" size="sm" onClick={() => setShowTimesheetApprovals(true)}>
+              <Button variant="outline" size="sm" onClick={() => setActiveTab("timesheets")}>
                 Review Timesheets
               </Button>
             </div>
@@ -529,13 +409,12 @@ export default function TeamPage() {
         </Dialog>
       </div>
 
-      <Tabs defaultValue="all" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList>
           <TabsTrigger value="all">All Team</TabsTrigger>
           <TabsTrigger value="available">Available Now</TabsTrigger>
           <TabsTrigger value="on-job">On Job</TabsTrigger>
           <TabsTrigger value="off-duty">Off Duty</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
           <TabsTrigger value="timesheets">Timesheets</TabsTrigger>
         </TabsList>
 
@@ -580,7 +459,7 @@ export default function TeamPage() {
                               <Badge
                                 key={i}
                                 variant="outline"
-                                className={cn("text-xs py-0 h-5", getSkillBadgeColor(skill))}
+                                className={cn("text-xs py-0 h-5", getSkillBadgeColor(skill as Skill))}
                               >
                                 {skill}
                               </Badge>
@@ -636,6 +515,522 @@ export default function TeamPage() {
                               <Avatar className="h-8 w-8">
                                 <AvatarImage src={member.image || ""} alt={member.name} />
                                 <AvatarFallback className="bg-blue-50 text-blue-600 text-xs">
+                                  {member.initials}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-medium">{member.name}</div>
+                                <div className="text-xs text-muted-foreground">{member.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-1">
+                              {getRoleIcon(member.role)}
+                              <span>{member.role}</span>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <Badge className={getStatusColor(member.status)}>{member.status}</Badge>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span>{member.location}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground">{member.eta}</div>
+                          </td>
+                          <td className="p-3">
+                            <Badge className={getTimesheetStatusColor(member.timesheet.status)}>
+                              {member.timesheet.status}
+                            </Badge>
+                          </td>
+                          <td className="p-3 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Link href={`/team/${member.id}`}>
+                                <Button variant="outline" size="sm">
+                                  View
+                                </Button>
+                              </Link>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem>
+                                    <Phone className="h-4 w-4 mr-2" />
+                                    Call
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Mail className="h-4 w-4 mr-2" />
+                                    Email
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Calendar className="h-4 w-4 mr-2" />
+                                    Schedule
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem>
+                                    <FileText className="h-4 w-4 mr-2" />
+                                    Edit Details
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="available" className="mt-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle>Available Now</CardTitle>
+              <CardDescription>Showing {filteredTeamMembers.filter((member) => member.status === "Available").length} team members</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {viewMode === "cards" ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredTeamMembers.filter((member) => member.status === "Available").map((member) => (
+                    <Card key={member.id} className="overflow-hidden">
+                      <CardContent className="p-0">
+                        <div className="p-4 flex items-center gap-4">
+                          <Avatar className="h-16 w-16 border-2 border-green-200">
+                            <AvatarImage src={member.image || ""} alt={member.name} />
+                            <AvatarFallback className="bg-green-50 text-green-600 text-xl">
+                              {member.initials}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-medium truncate">{member.name}</h3>
+                              <Badge className={getStatusColor(member.status)}>{member.status}</Badge>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              {getRoleIcon(member.role)}
+                              <span>{member.role}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                              <MapPin className="h-3.5 w-3.5" />
+                              <span className="truncate">{member.location}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="px-4 pb-2">
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {member.skills.slice(0, 3).map((skill, i) => (
+                              <Badge
+                                key={i}
+                                variant="outline"
+                                className={cn("text-xs py-0 h-5", getSkillBadgeColor(skill as Skill))}
+                              >
+                                {skill}
+                              </Badge>
+                            ))}
+                            {member.skills.length > 3 && (
+                              <Badge variant="outline" className="text-xs py-0 h-5 bg-gray-100">
+                                +{member.skills.length - 3} more
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="bg-muted/20 px-4 py-3 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
+                              <Phone className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
+                              <Mail className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
+                              <Calendar className="h-4 w-4 text-green-600" />
+                            </Button>
+                          </div>
+                          <Link href={`/team/${member.id}`}>
+                            <Button variant="outline" size="sm">
+                              View Profile
+                            </Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-3 text-sm font-medium">Name</th>
+                        <th className="text-left p-3 text-sm font-medium">Role</th>
+                        <th className="text-left p-3 text-sm font-medium">Status</th>
+                        <th className="text-left p-3 text-sm font-medium">Location</th>
+                        <th className="text-left p-3 text-sm font-medium">Timesheet</th>
+                        <th className="text-right p-3 text-sm font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTeamMembers.filter((member) => member.status === "Available").map((member) => (
+                        <tr key={member.id} className="border-t hover:bg-muted/20">
+                          <td className="p-3">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={member.image || ""} alt={member.name} />
+                                <AvatarFallback className="bg-green-50 text-green-600 text-xs">
+                                  {member.initials}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-medium">{member.name}</div>
+                                <div className="text-xs text-muted-foreground">{member.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-1">
+                              {getRoleIcon(member.role)}
+                              <span>{member.role}</span>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <Badge className={getStatusColor(member.status)}>{member.status}</Badge>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span>{member.location}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground">{member.eta}</div>
+                          </td>
+                          <td className="p-3">
+                            <Badge className={getTimesheetStatusColor(member.timesheet.status)}>
+                              {member.timesheet.status}
+                            </Badge>
+                          </td>
+                          <td className="p-3 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Link href={`/team/${member.id}`}>
+                                <Button variant="outline" size="sm">
+                                  View
+                                </Button>
+                              </Link>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem>
+                                    <Phone className="h-4 w-4 mr-2" />
+                                    Call
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Mail className="h-4 w-4 mr-2" />
+                                    Email
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Calendar className="h-4 w-4 mr-2" />
+                                    Schedule
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem>
+                                    <FileText className="h-4 w-4 mr-2" />
+                                    Edit Details
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="on-job" className="mt-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle>On Job</CardTitle>
+              <CardDescription>Showing {filteredTeamMembers.filter((member) => member.status === "On Job").length} team members</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {viewMode === "cards" ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredTeamMembers.filter((member) => member.status === "On Job").map((member) => (
+                    <Card key={member.id} className="overflow-hidden">
+                      <CardContent className="p-0">
+                        <div className="p-4 flex items-center gap-4">
+                          <Avatar className="h-16 w-16 border-2 border-blue-200">
+                            <AvatarImage src={member.image || ""} alt={member.name} />
+                            <AvatarFallback className="bg-blue-50 text-blue-600 text-xl">
+                              {member.initials}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-medium truncate">{member.name}</h3>
+                              <Badge className={getStatusColor(member.status)}>{member.status}</Badge>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              {getRoleIcon(member.role)}
+                              <span>{member.role}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                              <MapPin className="h-3.5 w-3.5" />
+                              <span className="truncate">{member.location}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="px-4 pb-2">
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {member.skills.slice(0, 3).map((skill, i) => (
+                              <Badge
+                                key={i}
+                                variant="outline"
+                                className={cn("text-xs py-0 h-5", getSkillBadgeColor(skill as Skill))}
+                              >
+                                {skill}
+                              </Badge>
+                            ))}
+                            {member.skills.length > 3 && (
+                              <Badge variant="outline" className="text-xs py-0 h-5 bg-gray-100">
+                                +{member.skills.length - 3} more
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="bg-muted/20 px-4 py-3 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
+                              <Phone className="h-4 w-4 text-blue-600" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
+                              <Mail className="h-4 w-4 text-blue-600" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
+                              <Calendar className="h-4 w-4 text-blue-600" />
+                            </Button>
+                          </div>
+                          <Link href={`/team/${member.id}`}>
+                            <Button variant="outline" size="sm">
+                              View Profile
+                            </Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-3 text-sm font-medium">Name</th>
+                        <th className="text-left p-3 text-sm font-medium">Role</th>
+                        <th className="text-left p-3 text-sm font-medium">Status</th>
+                        <th className="text-left p-3 text-sm font-medium">Location</th>
+                        <th className="text-left p-3 text-sm font-medium">Timesheet</th>
+                        <th className="text-right p-3 text-sm font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTeamMembers.filter((member) => member.status === "On Job").map((member) => (
+                        <tr key={member.id} className="border-t hover:bg-muted/20">
+                          <td className="p-3">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={member.image || ""} alt={member.name} />
+                                <AvatarFallback className="bg-blue-50 text-blue-600 text-xs">
+                                  {member.initials}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-medium">{member.name}</div>
+                                <div className="text-xs text-muted-foreground">{member.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-1">
+                              {getRoleIcon(member.role)}
+                              <span>{member.role}</span>
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <Badge className={getStatusColor(member.status)}>{member.status}</Badge>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span>{member.location}</span>
+                            </div>
+                            <div className="text-xs text-muted-foreground">{member.eta}</div>
+                          </td>
+                          <td className="p-3">
+                            <Badge className={getTimesheetStatusColor(member.timesheet.status)}>
+                              {member.timesheet.status}
+                            </Badge>
+                          </td>
+                          <td className="p-3 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Link href={`/team/${member.id}`}>
+                                <Button variant="outline" size="sm">
+                                  View
+                                </Button>
+                              </Link>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem>
+                                    <Phone className="h-4 w-4 mr-2" />
+                                    Call
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Mail className="h-4 w-4 mr-2" />
+                                    Email
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Calendar className="h-4 w-4 mr-2" />
+                                    Schedule
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem>
+                                    <FileText className="h-4 w-4 mr-2" />
+                                    Edit Details
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="off-duty" className="mt-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle>Off Duty</CardTitle>
+              <CardDescription>Showing {filteredTeamMembers.filter((member) => member.status === "Off Duty").length} team members</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {viewMode === "cards" ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredTeamMembers.filter((member) => member.status === "Off Duty").map((member) => (
+                    <Card key={member.id} className="overflow-hidden">
+                      <CardContent className="p-0">
+                        <div className="p-4 flex items-center gap-4">
+                          <Avatar className="h-16 w-16 border-2 border-gray-200">
+                            <AvatarImage src={member.image || ""} alt={member.name} />
+                            <AvatarFallback className="bg-gray-50 text-gray-600 text-xl">
+                              {member.initials}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-medium truncate">{member.name}</h3>
+                              <Badge className={getStatusColor(member.status)}>{member.status}</Badge>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              {getRoleIcon(member.role)}
+                              <span>{member.role}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                              <MapPin className="h-3.5 w-3.5" />
+                              <span className="truncate">{member.location}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="px-4 pb-2">
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {member.skills.slice(0, 3).map((skill, i) => (
+                              <Badge
+                                key={i}
+                                variant="outline"
+                                className={cn("text-xs py-0 h-5", getSkillBadgeColor(skill as Skill))}
+                              >
+                                {skill}
+                              </Badge>
+                            ))}
+                            {member.skills.length > 3 && (
+                              <Badge variant="outline" className="text-xs py-0 h-5 bg-gray-100">
+                                +{member.skills.length - 3} more
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="bg-muted/20 px-4 py-3 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
+                              <Phone className="h-4 w-4 text-gray-600" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
+                              <Mail className="h-4 w-4 text-gray-600" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-full">
+                              <Calendar className="h-4 w-4 text-gray-600" />
+                            </Button>
+                          </div>
+                          <Link href={`/team/${member.id}`}>
+                            <Button variant="outline" size="sm">
+                              View Profile
+                            </Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full">
+                    <thead className="bg-muted/50">
+                      <tr>
+                        <th className="text-left p-3 text-sm font-medium">Name</th>
+                        <th className="text-left p-3 text-sm font-medium">Role</th>
+                        <th className="text-left p-3 text-sm font-medium">Status</th>
+                        <th className="text-left p-3 text-sm font-medium">Location</th>
+                        <th className="text-left p-3 text-sm font-medium">Timesheet</th>
+                        <th className="text-right p-3 text-sm font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTeamMembers.filter((member) => member.status === "Off Duty").map((member) => (
+                        <tr key={member.id} className="border-t hover:bg-muted/20">
+                          <td className="p-3">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={member.image || ""} alt={member.name} />
+                                <AvatarFallback className="bg-gray-50 text-gray-600 text-xs">
                                   {member.initials}
                                 </AvatarFallback>
                               </Avatar>
@@ -977,75 +1372,7 @@ export default function TeamPage() {
             </CardContent>
           </Card>
         </TabsContent>
-
-        {/* Other tab contents remain the same */}
       </Tabs>
-
-      {/* Timesheet Approval Dialog */}
-      <Dialog open={showTimesheetApprovals} onOpenChange={setShowTimesheetApprovals}>
-        <DialogContent className="sm:max-w-[800px]">
-          <DialogHeader>
-            <DialogTitle>Timesheet Approvals</DialogTitle>
-            <DialogDescription>Review and approve pending timesheets for the week of Apr 1, 2023</DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Team Member</TableHead>
-                  <TableHead>Hours</TableHead>
-                  <TableHead>Overtime</TableHead>
-                  <TableHead>Submitted</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pendingTimesheetApprovals.map((member) => (
-                  <TableRow key={member.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={member.image || ""} alt={member.name} />
-                          <AvatarFallback className="bg-blue-50 text-blue-600 text-xs">
-                            {member.initials}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{member.name}</div>
-                          <div className="text-xs text-muted-foreground">{member.role}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>{member.timesheet.totalHours}</TableCell>
-                    <TableCell>{member.timesheet.totalHours > 40 ? member.timesheet.totalHours - 40 : 0}</TableCell>
-                    <TableCell>{member.timesheet.submittedDate}</TableCell>
-                    <TableCell>
-                      <Badge className={getTimesheetStatusColor(member.timesheet.status)}>
-                        {member.timesheet.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
-                        <Button size="sm">Approve</Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowTimesheetApprovals(false)}>
-              Cancel
-            </Button>
-            <Button onClick={() => setShowTimesheetApprovals(false)}>Approve All</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }

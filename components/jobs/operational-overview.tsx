@@ -1,6 +1,5 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Calendar, FileText, AlertTriangle, ClipboardList } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { AlertTriangle, Calendar, FileText, ClipboardList } from "lucide-react"
 
 interface JobMetrics {
   estimating: number
@@ -19,42 +18,65 @@ export function OperationalOverview() {
   }
 
   return (
-    <div>
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-medium">Attention Required</CardTitle>
-          <CardDescription>Critical items</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            {metrics.overdueJobs > 0 && (
-              <Alert variant="destructive" className="py-2">
-                <AlertTriangle className="h-4 w-4 mr-2" />
-                <AlertDescription className="text-sm">{metrics.overdueJobs} overdue job</AlertDescription>
-              </Alert>
-            )}
+    <div className="mb-6">
+      <div className="flex flex-col gap-2 mb-4">
+        <h2 className="text-lg font-medium">Attention Required</h2>
+        <p className="text-sm text-muted-foreground">Critical items</p>
+      </div>
 
-            {metrics.upcomingDeadlines > 0 && (
-              <Alert className="py-2 border-yellow-500 text-yellow-700 bg-yellow-50">
-                <Calendar className="h-4 w-4 mr-2" />
-                <AlertDescription className="text-sm">
-                  {metrics.upcomingDeadlines} upcoming deadlines this week
-                </AlertDescription>
-              </Alert>
-            )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {metrics.overdueJobs > 0 && (
+          <Card className="border-l-4 border-l-red-500">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="bg-red-50 p-2 rounded-full">
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+              </div>
+              <div>
+                <div className="text-2xl font-semibold">{metrics.overdueJobs}</div>
+                <div className="text-sm text-muted-foreground">Overdue job</div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-            <Alert className="py-2 border-blue-500 text-blue-700 bg-blue-50">
-              <FileText className="h-4 w-4 mr-2" />
-              <AlertDescription className="text-sm">{metrics.estimating} estimates awaiting approval</AlertDescription>
-            </Alert>
+        {metrics.upcomingDeadlines > 0 && (
+          <Card className="border-l-4 border-l-yellow-500">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="bg-yellow-50 p-2 rounded-full">
+                <Calendar className="h-5 w-5 text-yellow-500" />
+              </div>
+              <div>
+                <div className="text-2xl font-semibold">{metrics.upcomingDeadlines}</div>
+                <div className="text-sm text-muted-foreground">Upcoming deadlines</div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-            <Alert className="py-2 border-green-500 text-green-700 bg-green-50">
-              <ClipboardList className="h-4 w-4 mr-2" />
-              <AlertDescription className="text-sm">{metrics.inProgress} active work orders</AlertDescription>
-            </Alert>
-          </div>
-        </CardContent>
-      </Card>
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="bg-blue-50 p-2 rounded-full">
+              <FileText className="h-5 w-5 text-blue-500" />
+            </div>
+            <div>
+              <div className="text-2xl font-semibold">{metrics.estimating}</div>
+              <div className="text-sm text-muted-foreground">Estimates awaiting approval</div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="bg-green-50 p-2 rounded-full">
+              <ClipboardList className="h-5 w-5 text-green-500" />
+            </div>
+            <div>
+              <div className="text-2xl font-semibold">{metrics.inProgress}</div>
+              <div className="text-sm text-muted-foreground">Active work orders</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

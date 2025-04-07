@@ -9,6 +9,14 @@ import { CalendarDays, Clock, Filter, Plus, Search, User } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { OperationalOverview } from "@/components/jobs/operational-overview"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 export default function JobsPage() {
   // This would come from your API or state management in a real app
@@ -122,80 +130,73 @@ export default function JobsPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            {jobs.map((job) => (
-              <Link key={job.id} href={`/jobs/${job.id}`}>
-                <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-0">
-                    <div className="flex flex-col md:flex-row">
-                      {/* Status Indicator */}
-                      <div
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Job ID</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Priority</TableHead>
+                  <TableHead>Due Date</TableHead>
+                  <TableHead>Assigned To</TableHead>
+                  <TableHead>Location</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {jobs.map((job) => (
+                  <TableRow key={job.id} className="cursor-pointer hover:bg-muted/50" onClick={() => window.location.href = `/jobs/${job.id}`}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        {job.id}
+                      </div>
+                    </TableCell>
+                    <TableCell>{job.customer}</TableCell>
+                    <TableCell>{job.type}</TableCell>
+                    <TableCell>
+                      <Badge
                         className={cn(
-                          "w-full md:w-1.5 h-1.5 md:h-auto",
                           job.status === "Completed" && "bg-green-500",
                           job.status === "In Progress" && "bg-blue-500",
                           job.status === "Scheduled" && "bg-yellow-500",
                           job.status === "Estimating" && "bg-purple-500",
                           job.status === "Pending" && "bg-gray-300",
                         )}
-                      />
-
-                      <div className="flex flex-col md:flex-row flex-grow p-4 gap-4">
-                        {/* Job Details */}
-                        <div className="flex-grow space-y-2">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-medium">{job.id}</h3>
-                            <Badge
-                              className={cn(
-                                "ml-2",
-                                job.status === "Completed" && "bg-green-500",
-                                job.status === "In Progress" && "bg-blue-500",
-                                job.status === "Scheduled" && "bg-yellow-500",
-                                job.status === "Estimating" && "bg-purple-500",
-                                job.status === "Pending" && "bg-gray-300",
-                              )}
-                            >
-                              {job.status}
-                            </Badge>
-                            <Badge
-                              variant="outline"
-                              className={cn(
-                                job.priority === "High" && "border-red-500 text-red-500",
-                                job.priority === "Medium" && "border-yellow-500 text-yellow-500",
-                                job.priority === "Low" && "border-green-500 text-green-500",
-                              )}
-                            >
-                              {job.priority}
-                            </Badge>
-                          </div>
-                          <p className="text-sm font-medium">{job.customer}</p>
-                          <p className="text-sm text-muted-foreground">{job.type}</p>
-
-                          <div className="flex flex-wrap gap-4 pt-2">
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <CalendarDays className="h-3.5 w-3.5" />
-                              Due: {job.dueDate}
-                            </div>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <Clock className="h-3.5 w-3.5" />
-                              Created: {job.createdDate}
-                            </div>
-                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                              <User className="h-3.5 w-3.5" />
-                              {job.assignedTo}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Location */}
-                        <div className="md:text-right md:min-w-[200px] text-sm text-muted-foreground">
-                          {job.location}
-                        </div>
+                      >
+                        {job.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          job.priority === "High" && "border-red-500 text-red-500",
+                          job.priority === "Medium" && "border-yellow-500 text-yellow-500",
+                          job.priority === "Low" && "border-green-500 text-green-500",
+                        )}
+                      >
+                        {job.priority}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <CalendarDays className="h-3.5 w-3.5" />
+                        {job.dueDate}
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                        <User className="h-3.5 w-3.5" />
+                        {job.assignedTo}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {job.location}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>

@@ -369,16 +369,7 @@ export default function JobDetailPage({ params }: { params: { id: string } }) {
           </Button>
           <Button variant="outline" size="sm" className="gap-1">
             <Download className="h-3.5 w-3.5" />
-            Export
-          </Button>
-          <Link href={`/jobs/${job.id}/edit`}>
-            <Button size="sm" className="gap-1">
-              <Edit className="h-3.5 w-3.5" />
-              Edit Job
-            </Button>
-          </Link>
-          <Button variant="ghost" size="icon" className="rounded-full h-8 w-8">
-            <MoreHorizontal className="h-4 w-4" />
+            Print
           </Button>
         </div>
       </div>

@@ -193,7 +193,7 @@ export default function ContactsPage() {
   })
 
   // Get contact type badge
-  const getContactTypeBadge = (types) => {
+  const getContactTypeBadge = (types: string[]) => {
     if (types.includes("customer") && types.includes("vendor")) {
       return <Badge className="bg-purple-500">Customer & Vendor</Badge>
     } else if (types.includes("customer")) {
@@ -207,7 +207,7 @@ export default function ContactsPage() {
   }
 
   // Render contact list
-  const renderContactList = (contacts) => {
+  const renderContactList = (contacts: typeof filteredContacts) => {
     return (
       <div className="border rounded-lg overflow-hidden">
         <table className="w-full">
@@ -381,7 +381,6 @@ export default function ContactsPage() {
           <TabsTrigger value="customers">Customers</TabsTrigger>
           <TabsTrigger value="vendors">Vendors</TabsTrigger>
           <TabsTrigger value="subcontractors">Subcontractors</TabsTrigger>
-          <TabsTrigger value="recent">Recent</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="mt-4">
@@ -432,20 +431,6 @@ export default function ContactsPage() {
             </CardHeader>
             <CardContent>
               {renderContactList(filteredContacts.filter((contact) => contact.type.includes("subcontractor")))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="recent" className="mt-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Recent Contacts</CardTitle>
-              <CardDescription>Recently added or updated contacts</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {renderContactList(
-                filteredContacts.sort((a, b) => new Date(b.lastContact) - new Date(a.lastContact)).slice(0, 6),
-              )}
             </CardContent>
           </Card>
         </TabsContent>

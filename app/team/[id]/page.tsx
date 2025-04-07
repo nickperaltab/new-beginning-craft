@@ -331,7 +331,7 @@ export default function TeamMemberPage({ params }: { params: { id: string } }) {
   }
 
   // Get status color
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
       case "Available":
         return "bg-green-500"
@@ -345,7 +345,7 @@ export default function TeamMemberPage({ params }: { params: { id: string } }) {
   }
 
   // Get skill badge color
-  const getSkillBadgeColor = (skill) => {
+  const getSkillBadgeColor = (skill: string) => {
     if (skill.includes("HVAC")) return "bg-blue-100 text-blue-800 border-blue-200"
     if (skill.includes("Electrical")) return "bg-yellow-100 text-yellow-800 border-yellow-200"
     if (skill.includes("Plumbing")) return "bg-green-100 text-green-800 border-green-200"
@@ -355,7 +355,7 @@ export default function TeamMemberPage({ params }: { params: { id: string } }) {
   }
 
   // Get certification status color
-  const getCertificationStatusColor = (status) => {
+  const getCertificationStatusColor = (status: string) => {
     switch (status) {
       case "Active":
         return "bg-green-500"
@@ -369,7 +369,7 @@ export default function TeamMemberPage({ params }: { params: { id: string } }) {
   }
 
   // Get document type icon
-  const getDocumentTypeIcon = (type) => {
+  const getDocumentTypeIcon = (type: string) => {
     switch (type) {
       case "certification":
         return <Award className="h-4 w-4" />
@@ -383,7 +383,7 @@ export default function TeamMemberPage({ params }: { params: { id: string } }) {
   }
 
   // Get timesheet entry status color
-  const getTimesheetStatusColor = (status) => {
+  const getTimesheetStatusColor = (status: string) => {
     switch (status) {
       case "Approved":
         return "bg-green-500"
@@ -401,7 +401,7 @@ export default function TeamMemberPage({ params }: { params: { id: string } }) {
   }
 
   // Format time as hours and minutes
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
     return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`
@@ -604,10 +604,7 @@ export default function TeamMemberPage({ params }: { params: { id: string } }) {
             <TabsList>
               <TabsTrigger value="schedule">Schedule</TabsTrigger>
               <TabsTrigger value="timesheets">Timesheets</TabsTrigger>
-              <TabsTrigger value="performance">Performance</TabsTrigger>
               <TabsTrigger value="certifications">Certifications</TabsTrigger>
-              <TabsTrigger value="documents">Documents</TabsTrigger>
-              <TabsTrigger value="notes">Notes</TabsTrigger>
             </TabsList>
 
             <TabsContent value="schedule" className="mt-4">
@@ -1124,132 +1121,6 @@ export default function TeamMemberPage({ params }: { params: { id: string } }) {
               </Card>
             </TabsContent>
 
-            <TabsContent value="performance" className="mt-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle>Performance Metrics</CardTitle>
-                  <CardDescription>Performance statistics and job history</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {/* Performance Metrics */}
-                    <div>
-                      <h3 className="text-sm font-medium mb-3">Key Performance Indicators</h3>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <Card>
-                          <CardContent className="p-4">
-                            <div className="text-sm text-muted-foreground">Jobs Completed</div>
-                            <div className="text-2xl font-bold mt-1">{teamMember.performance.jobsCompleted}</div>
-                            <Progress value={85} className="h-1.5 mt-2" />
-                          </CardContent>
-                        </Card>
-                        <Card>
-                          <CardContent className="p-4">
-                            <div className="text-sm text-muted-foreground">On-Time Rate</div>
-                            <div className="text-2xl font-bold mt-1">{teamMember.performance.onTimeRate}%</div>
-                            <Progress value={teamMember.performance.onTimeRate} className="h-1.5 mt-2" />
-                          </CardContent>
-                        </Card>
-                        <Card>
-                          <CardContent className="p-4">
-                            <div className="text-sm text-muted-foreground">Customer Satisfaction</div>
-                            <div className="text-2xl font-bold mt-1">{teamMember.performance.customerSatisfaction}</div>
-                            <div className="flex items-center gap-0.5 text-yellow-500 mt-2">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={cn(
-                                    "h-4 w-4",
-                                    i < Math.floor(teamMember.performance.customerSatisfaction)
-                                      ? "fill-current"
-                                      : "opacity-30",
-                                  )}
-                                />
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
-                        <Card>
-                          <CardContent className="p-4">
-                            <div className="text-sm text-muted-foreground">Utilization Rate</div>
-                            <div className="text-2xl font-bold mt-1">{teamMember.performance.utilizationRate}%</div>
-                            <Progress value={teamMember.performance.utilizationRate} className="h-1.5 mt-2" />
-                          </CardContent>
-                        </Card>
-                        <Card>
-                          <CardContent className="p-4">
-                            <div className="text-sm text-muted-foreground">Response Time</div>
-                            <div className="text-2xl font-bold mt-1">{teamMember.performance.responseTime}</div>
-                            <Progress value={80} className="h-1.5 mt-2" />
-                          </CardContent>
-                        </Card>
-                        <Card>
-                          <CardContent className="p-4">
-                            <div className="text-sm text-muted-foreground">First-Time Fix Rate</div>
-                            <div className="text-2xl font-bold mt-1">{teamMember.performance.firstTimeFixRate}</div>
-                            <Progress value={92} className="h-1.5 mt-2" />
-                          </CardContent>
-                        </Card>
-                      </div>
-                    </div>
-
-                    {/* Recent Jobs */}
-                    <div>
-                      <h3 className="text-sm font-medium mb-3">Recent Jobs</h3>
-                      <div className="border rounded-lg overflow-hidden">
-                        <table className="w-full">
-                          <thead className="bg-muted/50">
-                            <tr>
-                              <th className="text-left p-3 text-sm font-medium">Job ID</th>
-                              <th className="text-left p-3 text-sm font-medium">Customer</th>
-                              <th className="text-left p-3 text-sm font-medium">Date</th>
-                              <th className="text-left p-3 text-sm font-medium">Type</th>
-                              <th className="text-left p-3 text-sm font-medium">Status</th>
-                              <th className="text-left p-3 text-sm font-medium">Rating</th>
-                              <th className="text-right p-3 text-sm font-medium">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {teamMember.recentJobs.map((job, index) => (
-                              <tr key={index} className="border-t hover:bg-muted/20">
-                                <td className="p-3 font-medium">{job.id}</td>
-                                <td className="p-3">{job.customer}</td>
-                                <td className="p-3">{job.date}</td>
-                                <td className="p-3">{job.type}</td>
-                                <td className="p-3">
-                                  <Badge className="bg-green-500">{job.status}</Badge>
-                                </td>
-                                <td className="p-3">
-                                  <div className="flex items-center gap-0.5 text-yellow-500">
-                                    {[...Array(5)].map((_, i) => (
-                                      <Star
-                                        key={i}
-                                        className={cn("h-3 w-3", i < job.rating ? "fill-current" : "opacity-30")}
-                                      />
-                                    ))}
-                                  </div>
-                                </td>
-                                <td className="p-3 text-right">
-                                  <Link href={`/jobs/${job.id}`}>
-                                    <Button variant="outline" size="sm">
-                                      View
-                                    </Button>
-                                  </Link>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      <div className="flex justify-center mt-4">
-                        <Button variant="outline">View All Jobs</Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
             <TabsContent value="certifications" className="mt-4">
               <Card>
                 <CardHeader className="pb-2">
@@ -1352,100 +1223,6 @@ export default function TeamMemberPage({ params }: { params: { id: string } }) {
                           </tbody>
                         </table>
                       </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="documents" className="mt-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle>Documents</CardTitle>
-                  <CardDescription>Certifications, training records, and other documents</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-sm font-medium">Team Member Documents</h3>
-                      <Button>
-                        <Upload className="h-4 w-4 mr-1" />
-                        Upload Document
-                      </Button>
-                    </div>
-                    <div className="border rounded-lg overflow-hidden">
-                      <table className="w-full">
-                        <thead className="bg-muted/50">
-                          <tr>
-                            <th className="text-left p-3 text-sm font-medium">Document</th>
-                            <th className="text-left p-3 text-sm font-medium">Type</th>
-                            <th className="text-left p-3 text-sm font-medium">Date Added</th>
-                            <th className="text-left p-3 text-sm font-medium">Size</th>
-                            <th className="text-right p-3 text-sm font-medium">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {teamMember.documents.map((doc, index) => (
-                            <tr key={index} className="border-t hover:bg-muted/20">
-                              <td className="p-3">
-                                <div className="flex items-center gap-2">
-                                  {getDocumentTypeIcon(doc.type)}
-                                  <span className="font-medium">{doc.name}</span>
-                                </div>
-                              </td>
-                              <td className="p-3 capitalize">{doc.type}</td>
-                              <td className="p-3">{doc.date}</td>
-                              <td className="p-3">{doc.size}</td>
-                              <td className="p-3 text-right">
-                                <div className="flex items-center justify-end gap-2">
-                                  <Button variant="outline" size="sm">
-                                    <FileText className="h-4 w-4 mr-1" />
-                                    View
-                                  </Button>
-                                  <Button variant="outline" size="sm">
-                                    <Download className="h-4 w-4 mr-1" />
-                                    Download
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="notes" className="mt-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle>Notes & Comments</CardTitle>
-                  <CardDescription>Notes and comments about this team member</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="border rounded-lg p-4">
-                      <h3 className="text-sm font-medium mb-2">Add New Note</h3>
-                      <div className="space-y-4">
-                        <Textarea placeholder="Enter your note here..." className="min-h-[120px]" />
-                        <div className="flex justify-end">
-                          <Button>Add Note</Button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      {teamMember.notes.map((note, index) => (
-                        <div key={index} className="border rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="font-medium">{note.author}</div>
-                            <div className="text-sm text-muted-foreground">{note.date}</div>
-                          </div>
-                          <p className="text-sm">{note.content}</p>
-                        </div>
-                      ))}
                     </div>
                   </div>
                 </CardContent>
