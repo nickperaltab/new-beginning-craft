@@ -19,11 +19,6 @@ export function OperationalOverview() {
 
   return (
     <div className="mb-6">
-      <div className="flex flex-col gap-2 mb-4">
-        <h2 className="text-lg font-medium">Attention Required</h2>
-        <p className="text-sm text-muted-foreground">Critical items</p>
-      </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {metrics.overdueJobs > 0 && (
           <Card className="border-l-4 border-l-red-500">
