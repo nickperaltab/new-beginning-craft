@@ -105,6 +105,9 @@ export default function PayoutsPage() {
           <Link href="/method-pay">
             <Button variant="outline">Method Pay</Button>
           </Link>
+          <Link href="/method-pay/account">
+            <Button variant="outline">Account Settings</Button>
+          </Link>
         </div>
       </div>
 
