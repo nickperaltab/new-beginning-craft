@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { InfoIcon, Download, HelpCircle, CheckCircle, Clock, AlertCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { BalanceDetailsModal } from "@/components/balance-details-modal"
 
 // Sample payout data
 const payoutTransactions = [
@@ -55,6 +56,7 @@ const inTransit = 1875.50;
 const futureRefunds = 350.75;
 
 export default function PayoutsPage() {
+  const [isBalanceDetailsModalOpen, setIsBalanceDetailsModalOpen] = useState(false)
   // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -90,7 +92,8 @@ export default function PayoutsPage() {
     }
   };
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <>
+      <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Payouts</h1>
         <div className="flex items-center gap-2">
@@ -125,7 +128,13 @@ export default function PayoutsPage() {
             </div>
 
             <div className="flex justify-between items-center">
-              <Button variant="link" className="text-blue-600 p-0 h-auto">See details</Button>
+              <Button
+                variant="link"
+                className="text-blue-600 p-0 h-auto"
+                onClick={() => setIsBalanceDetailsModalOpen(true)}
+              >
+                See details
+              </Button>
               <Button className="bg-green-500 hover:bg-green-600">Add to balance</Button>
             </div>
           </div>
@@ -201,5 +210,12 @@ export default function PayoutsPage() {
         </CardContent>
       </Card>
     </div>
+
+      {/* Balance Details Modal */}
+      <BalanceDetailsModal
+        isOpen={isBalanceDetailsModalOpen}
+        onClose={() => setIsBalanceDetailsModalOpen(false)}
+      />
+    </>
   )
 }
