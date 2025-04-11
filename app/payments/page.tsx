@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { ExportPaymentsModal } from "@/components/export-payments-modal"
 import { PaymentModal } from "@/components/payment-modal"
+import { PaymentDetailsModal } from "@/components/payment-details-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -44,6 +45,8 @@ export default function PaymentsPage() {
   const [selectedDateRange, setSelectedDateRange] = useState("30days")
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
+  const [isPaymentDetailsModalOpen, setIsPaymentDetailsModalOpen] = useState(false)
+  const [selectedPayment, setSelectedPayment] = useState<any>(null)
 
   // Mock payment data
   const payments = [
@@ -55,7 +58,8 @@ export default function PaymentsPage() {
       status: "completed",
       method: "credit_card",
       card: "**** **** **** 4242",
-      invoice: "INV-2023-005"
+      invoice: "INV-2023-005",
+      description: "Full grooming package for large Labradoodle"
     },
     {
       id: "PAY-2023-002",
@@ -65,7 +69,8 @@ export default function PaymentsPage() {
       status: "completed",
       method: "bank_transfer",
       account: "**** 1234",
-      invoice: "INV-2023-004"
+      invoice: "INV-2023-004",
+      description: "Monthly pet supplies subscription"
     },
     {
       id: "PAY-2023-003",
@@ -75,7 +80,8 @@ export default function PaymentsPage() {
       status: "pending",
       method: "credit_card",
       card: "**** **** **** 5678",
-      invoice: "INV-2023-003"
+      invoice: "INV-2023-003",
+      description: "Veterinary checkup and vaccinations"
     },
     {
       id: "PAY-2023-004",
@@ -85,7 +91,8 @@ export default function PaymentsPage() {
       status: "completed",
       method: "credit_card",
       card: "**** **** **** 9012",
-      invoice: "INV-2023-002"
+      invoice: "INV-2023-002",
+      description: "Premium dog food - 3 month supply"
     },
     {
       id: "PAY-2023-005",
@@ -95,7 +102,8 @@ export default function PaymentsPage() {
       status: "failed",
       method: "credit_card",
       card: "**** **** **** 3456",
-      invoice: "INV-2023-001"
+      invoice: "INV-2023-001",
+      description: "Pet boarding services - weekend stay"
     },
     {
       id: "PAY-2023-006",
@@ -105,7 +113,8 @@ export default function PaymentsPage() {
       status: "refunded",
       method: "bank_transfer",
       account: "**** 5678",
-      invoice: "INV-2023-001"
+      invoice: "INV-2023-001",
+      description: "Pet training sessions - basic obedience"
     },
   ]
 
@@ -320,7 +329,14 @@ export default function PaymentsPage() {
                     </thead>
                     <tbody>
                       {filteredPayments.map((payment) => (
-                        <tr key={payment.id} className="border-b hover:bg-muted/50">
+                        <tr
+                          key={payment.id}
+                          className="border-b hover:bg-muted/50 cursor-pointer"
+                          onClick={() => {
+                            setSelectedPayment(payment);
+                            setIsPaymentDetailsModalOpen(true);
+                          }}
+                        >
                           <td className="py-3 px-6">
                             <div className="font-medium">{payment.id}</div>
                           </td>
@@ -393,6 +409,13 @@ export default function PaymentsPage() {
         invoiceId="New Payment"
         amount={0}
         customer=""
+      />
+
+      {/* Payment Details Modal */}
+      <PaymentDetailsModal
+        isOpen={isPaymentDetailsModalOpen}
+        onClose={() => setIsPaymentDetailsModalOpen(false)}
+        payment={selectedPayment}
       />
     </div>
   )
