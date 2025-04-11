@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
+import Link from "next/link"
 
 export function MethodPayBanner() {
   const [isVisible, setIsVisible] = useState(true)
@@ -21,9 +22,11 @@ export function MethodPayBanner() {
       </p>
 
       <div className="flex items-center gap-3">
-        <Button className="bg-white text-blue-600 hover:bg-blue-100 border border-blue-200 font-medium px-6 rounded-full">
-          Get Started
-        </Button>
+        <Link href="/method-pay">
+          <Button className="bg-white text-blue-600 hover:bg-blue-100 border border-blue-200 font-medium px-6 rounded-full">
+            Get Started
+          </Button>
+        </Link>
         <Button
           variant="ghost"
           size="icon"

@@ -1,35 +1,36 @@
 "use client"
 
 import { useState } from "react"
-import { 
-  Bell, 
-  Mail, 
-  MessageSquare, 
-  User, 
-  Settings as SettingsIcon, 
-  Globe, 
-  Palette, 
-  Lock, 
-  CreditCard, 
-  FileText, 
+import {
+  Bell,
+  Mail,
+  MessageSquare,
+  User,
+  Settings as SettingsIcon,
+  Globe,
+  Palette,
+  Lock,
+  CreditCard,
+  FileText,
   Building,
   Truck,
   Calendar,
   Wifi
 } from "lucide-react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from "@/components/ui/card"
 import {
   Accordion,
@@ -270,9 +271,9 @@ export default function SettingsPage() {
                     ].map((item) => (
                       <div key={item} className="flex items-center justify-between py-2">
                         <Label htmlFor={`inapp-${item.toLowerCase().replace(/\s+/g, '-')}`}>{item}</Label>
-                        <Switch 
-                          id={`inapp-${item.toLowerCase().replace(/\s+/g, '-')}`} 
-                          defaultChecked 
+                        <Switch
+                          id={`inapp-${item.toLowerCase().replace(/\s+/g, '-')}`}
+                          defaultChecked
                         />
                       </div>
                     ))}
@@ -290,8 +291,8 @@ export default function SettingsPage() {
                     ].map((item) => (
                       <div key={item} className="flex items-center justify-between py-2">
                         <Label htmlFor={`desktop-${item.toLowerCase().replace(/\s+/g, '-')}`}>{item}</Label>
-                        <Switch 
-                          id={`desktop-${item.toLowerCase().replace(/\s+/g, '-')}`} 
+                        <Switch
+                          id={`desktop-${item.toLowerCase().replace(/\s+/g, '-')}`}
                           defaultChecked={item === "Urgent messages"}
                         />
                       </div>
@@ -311,8 +312,8 @@ export default function SettingsPage() {
                     ].map((item) => (
                       <div key={item} className="flex items-center justify-between py-2">
                         <Label htmlFor={`email-${item.toLowerCase().replace(/\s+/g, '-')}`}>{item}</Label>
-                        <Switch 
-                          id={`email-${item.toLowerCase().replace(/\s+/g, '-')}`} 
+                        <Switch
+                          id={`email-${item.toLowerCase().replace(/\s+/g, '-')}`}
                           defaultChecked={["Daily schedule summary", "New job assignments"].includes(item)}
                         />
                       </div>
@@ -331,8 +332,8 @@ export default function SettingsPage() {
                     ].map((item) => (
                       <div key={item} className="flex items-center justify-between py-2">
                         <Label htmlFor={`sms-${item.toLowerCase().replace(/\s+/g, '-')}`}>{item}</Label>
-                        <Switch 
-                          id={`sms-${item.toLowerCase().replace(/\s+/g, '-')}`} 
+                        <Switch
+                          id={`sms-${item.toLowerCase().replace(/\s+/g, '-')}`}
                           defaultChecked={item === "Emergency alerts"}
                         />
                       </div>
@@ -387,11 +388,11 @@ export default function SettingsPage() {
                     <div className="space-y-4 pt-2">
                       <div className="grid grid-cols-3 gap-4">
                         {[
-                          "Job Confirmation", 
-                          "Appointment Reminder", 
+                          "Job Confirmation",
+                          "Appointment Reminder",
                           "Schedule Change",
-                          "Invoice", 
-                          "Feedback Request", 
+                          "Invoice",
+                          "Feedback Request",
                           "Quote Approval"
                         ].map((template) => (
                           <Card key={template} className="hover:bg-muted cursor-pointer transition-colors">
@@ -412,7 +413,7 @@ export default function SettingsPage() {
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-                
+
                 <AccordionItem value="sms-templates">
                   <AccordionTrigger>
                     <div className="flex items-center space-x-2">
@@ -424,11 +425,11 @@ export default function SettingsPage() {
                     <div className="space-y-4 pt-2">
                       <div className="grid grid-cols-3 gap-4">
                         {[
-                          "Appointment Reminder", 
-                          "On-Route Notification", 
+                          "Appointment Reminder",
+                          "On-Route Notification",
                           "Service Complete",
-                          "Follow-up", 
-                          "Delay Notice", 
+                          "Follow-up",
+                          "Delay Notice",
                           "Emergency Contact"
                         ].map((template) => (
                           <Card key={template} className="hover:bg-muted cursor-pointer transition-colors">
@@ -449,7 +450,7 @@ export default function SettingsPage() {
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-                
+
                 <AccordionItem value="customer-templates">
                   <AccordionTrigger>
                     <div className="flex items-center space-x-2">
@@ -461,11 +462,11 @@ export default function SettingsPage() {
                     <div className="space-y-4 pt-2">
                       <div className="grid grid-cols-3 gap-4">
                         {[
-                          "Welcome Message", 
-                          "Password Reset", 
+                          "Welcome Message",
+                          "Password Reset",
                           "Service Instructions",
-                          "Account Update", 
-                          "Payment Confirmation", 
+                          "Account Update",
+                          "Payment Confirmation",
                           "Satisfaction Survey"
                         ].map((template) => (
                           <Card key={template} className="hover:bg-muted cursor-pointer transition-colors">
@@ -505,33 +506,42 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="space-y-4">
                 {[
+                  { name: "Method Pay", icon: CreditCard, connected: false, special: true },
                   { name: "Google Calendar", icon: Calendar, connected: true },
                   { name: "QuickBooks", icon: CreditCard, connected: true },
-                  { name: "Stripe", icon: CreditCard, connected: false },
                   { name: "Zapier", icon: Wifi, connected: false },
                   { name: "Mailchimp", icon: Mail, connected: false }
                 ].map((integration) => (
-                  <div key={integration.name} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div key={integration.name} className={`flex items-center justify-between p-4 border rounded-lg ${integration.special ? 'border-blue-200 bg-blue-50' : ''}`}>
                     <div className="flex items-center space-x-4">
-                      <div className="bg-primary/10 p-2 rounded-lg">
-                        <integration.icon className="h-5 w-5 text-primary" />
+                      <div className={`${integration.special ? 'bg-blue-100' : 'bg-primary/10'} p-2 rounded-lg`}>
+                        <integration.icon className={`h-5 w-5 ${integration.special ? 'text-blue-600' : 'text-primary'}`} />
                       </div>
                       <div>
                         <p className="font-medium">{integration.name}</p>
                         <p className="text-sm text-muted-foreground">
                           {integration.connected ? "Connected" : "Not connected"}
                         </p>
+                        {integration.special && (
+                          <p className="text-xs text-blue-600 mt-1">Recommended for faster payments</p>
+                        )}
                       </div>
                     </div>
-                    <Button variant={integration.connected ? "outline" : "default"}>
-                      {integration.connected ? "Disconnect" : "Connect"}
-                    </Button>
+                    {integration.special ? (
+                      <Link href="/method-pay">
+                        <Button className="bg-blue-600 hover:bg-blue-700">Connect</Button>
+                      </Link>
+                    ) : (
+                      <Button variant={integration.connected ? "outline" : "default"}>
+                        {integration.connected ? "Disconnect" : "Connect"}
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>API Settings</CardTitle>
@@ -549,12 +559,12 @@ export default function SettingsPage() {
                   This key provides access to all API endpoints. Keep it secure.
                 </p>
               </div>
-              
+
               <div className="space-y-2">
                 <Label>Webhook URL</Label>
                 <Input placeholder="https://your-service.com/webhook" />
               </div>
-              
+
               <div className="space-y-2">
                 <Label>Webhook Events</Label>
                 <div className="grid grid-cols-2 gap-2">
@@ -583,4 +593,4 @@ export default function SettingsPage() {
       </Tabs>
     </div>
   )
-} 
+}
