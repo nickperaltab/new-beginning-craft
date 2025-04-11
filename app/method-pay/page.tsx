@@ -8,11 +8,19 @@ import Link from "next/link"
 export default function MethodPayPage() {
   return (
     <div className="container mx-auto py-10 px-4 max-w-5xl">
-      <div className="mb-6">
+      <div className="flex justify-between items-center mb-6">
         <Link href="/settings" className="flex items-center text-blue-600 hover:text-blue-800">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Settings
         </Link>
+        <div className="flex gap-3">
+          <Link href="/payments">
+            <Button variant="outline">Payments Dashboard</Button>
+          </Link>
+          <Link href="/method-pay/payouts">
+            <Button variant="outline">Payouts</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="text-center mb-12">

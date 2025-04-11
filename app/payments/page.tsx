@@ -172,9 +172,19 @@ export default function PaymentsPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold">Payments</h1>
-        <p className="text-muted-foreground">Manage and track all payment transactions</p>
+      <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold">Payments</h1>
+          <p className="text-muted-foreground">Manage and track all payment transactions</p>
+        </div>
+        <div className="flex gap-3">
+          <Link href="/method-pay">
+            <Button variant="outline">Method Pay Dashboard</Button>
+          </Link>
+          <Link href="/method-pay/payouts">
+            <Button variant="outline">Payouts</Button>
+          </Link>
+        </div>
       </div>
 
       {/* Payment Summary Metrics */}
