@@ -21,31 +21,29 @@ interface AddFundsModalProps {
 
 export function AddFundsModal({ isOpen, onClose }: AddFundsModalProps) {
   const [amount, setAmount] = useState("")
-  
+
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow numbers and decimal point
     const value = e.target.value.replace(/[^0-9.]/g, "")
     setAmount(value)
   }
-  
+
   const handleContinue = () => {
     // Here you would handle the submission of the form
     console.log("Adding funds:", amount)
     onClose()
   }
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md p-0 gap-0">
         <DialogHeader className="p-6 pb-2">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-semibold">Add funds</DialogTitle>
-            <DialogClose className="h-6 w-6 rounded-md hover:bg-gray-100">
-              <X className="h-4 w-4" />
-            </DialogClose>
+
           </div>
         </DialogHeader>
-        
+
         <div className="px-6 py-4 space-y-6">
           <div>
             <div className="flex justify-between mb-1">
@@ -59,7 +57,7 @@ export function AddFundsModal({ isOpen, onClose }: AddFundsModalProps) {
               Learn more
             </Button>
           </div>
-          
+
           <div>
             <label htmlFor="amount" className="block text-gray-700 font-medium mb-2">
               Amount
@@ -79,10 +77,10 @@ export function AddFundsModal({ isOpen, onClose }: AddFundsModalProps) {
             </div>
           </div>
         </div>
-        
+
         <div className="p-4 mt-4">
-          <Button 
-            className="w-full bg-green-500 hover:bg-green-600" 
+          <Button
+            className="w-full bg-green-500 hover:bg-green-600"
             onClick={handleContinue}
             disabled={!amount || parseFloat(amount) <= 0}
           >

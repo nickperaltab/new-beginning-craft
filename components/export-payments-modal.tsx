@@ -53,9 +53,7 @@ export function ExportPaymentsModal({ isOpen, onClose }: ExportPaymentsModalProp
       <DialogContent className="sm:max-w-[550px] p-0 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 pb-4 border-b">
           <DialogTitle className="text-xl font-semibold">Export payments</DialogTitle>
-          <DialogClose className="h-6 w-6 rounded-md hover:bg-gray-100">
-            <X className="h-4 w-4" />
-          </DialogClose>
+
         </div>
 
         <div className="px-6 py-3 space-y-4">

@@ -24,34 +24,32 @@ export function BalanceDetailsModal({ isOpen, onClose }: BalanceDetailsModalProp
         <DialogHeader className="p-6 pb-2">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-semibold">USD balance</DialogTitle>
-            <DialogClose className="h-6 w-6 rounded-md hover:bg-gray-100">
-              <X className="h-4 w-4" />
-            </DialogClose>
+
           </div>
         </DialogHeader>
-        
+
         <div className="px-6 py-4">
           <h3 className="text-lg font-medium mb-4">Summary</h3>
-          
+
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-700">On the way to your bank</span>
               <span className="font-medium">$0.00</span>
             </div>
-            
+
             <div className="flex justify-between">
               <span className="text-gray-700">Funds on hold</span>
               <span className="font-medium">$0.00</span>
             </div>
-            
+
             <div className="flex justify-between">
               <span className="text-gray-700 font-medium">Total balance</span>
               <span className="font-medium">$0.00</span>
             </div>
           </div>
-          
+
           <Separator className="my-6" />
-          
+
           <div className="space-y-3">
             <div className="flex justify-between">
               <div>
@@ -63,18 +61,18 @@ export function BalanceDetailsModal({ isOpen, onClose }: BalanceDetailsModalProp
               <span className="font-medium">$0.00</span>
             </div>
           </div>
-          
+
           <Separator className="my-6" />
-          
+
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-700 font-medium">On the way to your bank</span>
               <span className="font-medium">$0.00</span>
             </div>
           </div>
-          
+
           <Separator className="my-6" />
-          
+
           <div className="flex justify-between items-center">
             <p className="text-gray-700">
               Your available funds are automatically paid out daily to{" "}
@@ -85,7 +83,7 @@ export function BalanceDetailsModal({ isOpen, onClose }: BalanceDetailsModalProp
             </Button>
           </div>
         </div>
-        
+
         <div className="p-4 bg-gray-50 border-t">
           <Button className="w-full bg-green-500 hover:bg-green-600" onClick={onClose}>
             Done

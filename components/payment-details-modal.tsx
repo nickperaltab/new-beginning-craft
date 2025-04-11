@@ -32,19 +32,19 @@ interface PaymentDetailsModalProps {
 
 export function PaymentDetailsModal({ isOpen, onClose, payment }: PaymentDetailsModalProps) {
   if (!payment) return null;
-  
+
   // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { 
-      month: "short", 
-      day: "numeric", 
-      hour: "numeric", 
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
       minute: "numeric",
       hour12: true
     });
   };
-  
+
   // Helper function to format payment status
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -62,7 +62,7 @@ export function PaymentDetailsModal({ isOpen, onClose, payment }: PaymentDetails
         return <Badge>{status}</Badge>
     }
   };
-  
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md p-0 gap-0">
@@ -71,43 +71,41 @@ export function PaymentDetailsModal({ isOpen, onClose, payment }: PaymentDetails
             <DialogTitle className="text-2xl font-semibold">
               ${payment.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD
             </DialogTitle>
-            <DialogClose className="h-6 w-6 rounded-md hover:bg-gray-100">
-              <X className="h-4 w-4" />
-            </DialogClose>
+
           </div>
           <DialogDescription className="text-gray-600 mt-1">
             From {payment.customer}
           </DialogDescription>
         </DialogHeader>
-        
+
         <Separator />
-        
+
         <div className="px-6 py-4">
           <h3 className="text-lg font-medium mb-4">Payment details</h3>
-          
+
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-2">
               <div className="text-gray-600">Status</div>
               <div>{getStatusBadge(payment.status)}</div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2">
               <div className="text-gray-600">Date received</div>
               <div>{formatDate(payment.date)}</div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2">
               <div className="text-gray-600">Description</div>
               <div>{payment.description || "Full grooming package for large Labradoodle"}</div>
             </div>
           </div>
         </div>
-        
+
         <Separator />
-        
+
         <div className="px-6 py-4">
           <h3 className="text-lg font-medium mb-4">Timeline</h3>
-          
+
           <div className="relative pl-6 pb-2">
             <div className="absolute left-0 top-1.5 w-3 h-3 bg-gray-300 rounded-full"></div>
             <div>
