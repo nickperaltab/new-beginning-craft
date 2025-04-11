@@ -99,8 +99,11 @@ export default function PayoutsPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Payouts</h1>
         <div className="flex items-center gap-2">
-          <Link href="/method-pay">
+          <Link href="/payments">
             <Button variant="outline">Payments Dashboard</Button>
+          </Link>
+          <Link href="/method-pay">
+            <Button variant="outline">Method Pay</Button>
           </Link>
         </div>
       </div>
