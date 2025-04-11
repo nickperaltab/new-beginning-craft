@@ -19,6 +19,9 @@ import {
   CheckCircle,
   AlertCircle,
   XCircle,
+  Timer,
+  AlertTriangle,
+  CalendarClock,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -29,6 +32,80 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { MethodPayBanner } from "@/components/method-pay-banner"
+
+// Invoice Summary Metrics Component
+function InvoiceSummaryMetrics({ invoices }: { invoices: any[] }) {
+  // Calculate metrics
+  const overdueInvoices = invoices.filter(inv => inv.status === "overdue")
+  const pendingInvoices = invoices.filter(inv => inv.status === "pending")
+  // For upcoming, we'll use pending invoices but in a real app this would be based on due dates
+  const upcomingInvoices = invoices.filter(inv => inv.status === "pending" || inv.status === "draft")
+
+  // Calculate total amounts
+  const overdueAmount = overdueInvoices.reduce((sum, inv) => sum + inv.amount, 0)
+  const outstandingAmount = pendingInvoices.reduce((sum, inv) => sum + inv.amount, 0)
+  const upcomingAmount = upcomingInvoices.reduce((sum, inv) => sum + inv.amount, 0)
+
+  // For average time to get paid, we'd normally calculate this from actual data
+  // For this example, we'll use a mock value
+  const avgDaysToPay = 3
+
+  return (
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+      {/* Overdue Invoices */}
+      <Card className="shadow-sm">
+        <CardContent className="p-6">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-muted-foreground">Overdue</p>
+              <span className="text-sm font-medium">{overdueInvoices.length}</span>
+            </div>
+            <p className="text-2xl font-bold text-red-600">$20,000.76</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Outstanding Invoices */}
+      <Card className="shadow-sm">
+        <CardContent className="p-6">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-muted-foreground">Outstanding</p>
+              <span className="text-sm font-medium">{pendingInvoices.length}</span>
+            </div>
+            <p className="text-2xl font-bold">$325,465.12</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Upcoming Invoices */}
+      <Card className="shadow-sm">
+        <CardContent className="p-6">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-muted-foreground">Upcoming</p>
+              <span className="text-sm font-medium">24</span>
+            </div>
+            <p className="text-2xl font-bold">$325,465.12</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Average Time to Get Paid */}
+      <Card className="shadow-sm">
+        <CardContent className="p-6">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-muted-foreground">Average time to get paid</p>
+            </div>
+            <p className="text-2xl font-bold">3 days</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
 
 export default function InvoicesPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -200,6 +277,12 @@ export default function InvoicesPage() {
         <p className="text-muted-foreground">Manage and track all invoices</p>
       </div>
 
+      {/* Method Pay Banner */}
+      <MethodPayBanner />
+
+      {/* Invoice Summary Metrics */}
+      <InvoiceSummaryMetrics invoices={invoices} />
+
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-center gap-2 w-full md:w-auto">
           <div className="relative w-full md:w-80">
@@ -308,4 +391,4 @@ export default function InvoicesPage() {
       </Tabs>
     </div>
   )
-} 
+}
