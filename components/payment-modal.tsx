@@ -109,9 +109,7 @@ export function PaymentModal({ isOpen, onClose, invoiceId, amount = 0, customer 
               Enter payment details to complete this transaction.
             </DialogDescription>
           </div>
-          <DialogClose className="h-6 w-6 rounded-md hover:bg-gray-100">
-            <X className="h-4 w-4" />
-          </DialogClose>
+
         </div>
 
         {isComplete ? (
