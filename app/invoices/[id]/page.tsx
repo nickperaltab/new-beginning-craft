@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -28,8 +29,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { PaymentModal } from "@/components/payment-modal"
 
 export default function InvoiceDetailPage({ params }: { params: { id: string } }) {
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
   // Mock invoice data - in a real app, fetch this based on the ID
   const invoice = {
     id: "INV-2023-001",
@@ -289,7 +292,7 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
                   <Send className="h-4 w-4 mr-2" />
                   Send to Customer
                 </Button>
-                <Button className="w-full justify-start">
+                <Button className="w-full justify-start" onClick={() => setIsPaymentModalOpen(true)}>
                   <DollarSign className="h-4 w-4 mr-2" />
                   Record Payment
                 </Button>
@@ -340,6 +343,15 @@ export default function InvoiceDetailPage({ params }: { params: { id: string } }
           </Card>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        invoiceId={invoice.id}
+        amount={invoice.total}
+        customer={invoice.customerDetails.name}
+      />
     </div>
   )
-} 
+}
