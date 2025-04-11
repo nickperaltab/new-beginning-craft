@@ -9,6 +9,7 @@ import { InfoIcon, Download, HelpCircle, CheckCircle, Clock, AlertCircle } from 
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { BalanceDetailsModal } from "@/components/balance-details-modal"
+import { AddFundsModal } from "@/components/add-funds-modal"
 
 // Sample payout data
 const payoutTransactions = [
@@ -57,6 +58,7 @@ const futureRefunds = 350.75;
 
 export default function PayoutsPage() {
   const [isBalanceDetailsModalOpen, setIsBalanceDetailsModalOpen] = useState(false)
+  const [isAddFundsModalOpen, setIsAddFundsModalOpen] = useState(false)
   // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -135,7 +137,12 @@ export default function PayoutsPage() {
               >
                 See details
               </Button>
-              <Button className="bg-green-500 hover:bg-green-600">Add to balance</Button>
+              <Button
+                className="bg-green-500 hover:bg-green-600"
+                onClick={() => setIsAddFundsModalOpen(true)}
+              >
+                Add to balance
+              </Button>
             </div>
           </div>
 
@@ -215,6 +222,12 @@ export default function PayoutsPage() {
       <BalanceDetailsModal
         isOpen={isBalanceDetailsModalOpen}
         onClose={() => setIsBalanceDetailsModalOpen(false)}
+      />
+
+      {/* Add Funds Modal */}
+      <AddFundsModal
+        isOpen={isAddFundsModalOpen}
+        onClose={() => setIsAddFundsModalOpen(false)}
       />
     </>
   )
