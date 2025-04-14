@@ -421,104 +421,11 @@ export default function TeamMemberPage({ params }: { params: { id: string } }) {
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold">Team Member Profile</h1>
+          <h1 className="text-2xl font-bold">{teamMember.name}</h1>
         </div>
-
-        <div className="flex items-center gap-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Profile
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px]">
-              <DialogHeader>
-                <DialogTitle>Edit Team Member Profile</DialogTitle>
-                <DialogDescription>Make changes to the team member's profile information.</DialogDescription>
-              </DialogHeader>
-              <div className="grid grid-cols-2 gap-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input id="name" defaultValue={teamMember.name} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
-                  <Select defaultValue="hvac">
-                    <SelectTrigger id="role">
-                      <SelectValue placeholder="Select role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hvac">HVAC Technician</SelectItem>
-                      <SelectItem value="electrician">Electrician</SelectItem>
-                      <SelectItem value="plumber">Plumber</SelectItem>
-                      <SelectItem value="pm">Project Manager</SelectItem>
-                      <SelectItem value="controls">Controls Specialist</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" defaultValue={teamMember.email} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" defaultValue={teamMember.phone} />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Input id="address" defaultValue={teamMember.address} />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="skills">Skills</Label>
-                  <Input id="skills" defaultValue={teamMember.skills.join(", ")} />
-                </div>
-                <div className="space-y-2 col-span-2">
-                  <Label htmlFor="regularHours">Regular Hours</Label>
-                  <Input id="regularHours" defaultValue={teamMember.availability.regularHours} />
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Save Changes</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <MoreHorizontal className="h-4 w-4 mr-2" />
-                Actions
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <Phone className="h-4 w-4 mr-2" />
-                Call
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Mail className="h-4 w-4 mr-2" />
-                Send Email
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Calendar className="h-4 w-4 mr-2" />
-                Schedule
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Document
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <PenTool className="h-4 w-4 mr-2" />
-                Add Note
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
-                <AlertTriangle className="h-4 w-4 mr-2" />
-                Deactivate
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div>
+          <h1 className="text-2xl font-bold">{teamMember.name}</h1>
+          <p className="text-muted-foreground">{teamMember.role}</p>
         </div>
       </div>
 

@@ -397,7 +397,7 @@ export default function TeamPage() {
                 <Card key={member.id} className={cn(
                   member.type === "subcontractor" && "border-orange-200 bg-orange-50/50"
                 )}>
-                  <Link href={`/team/${member.id}`}>
+                          <Link href={`/team/${member.id}`}>
                     <CardHeader>
                             <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -446,10 +446,10 @@ export default function TeamPage() {
                           </div>
                         </div>
                       </CardContent>
-                    </Link>
-                    </Card>
+                              </Link>
+          </Card>
                   ))}
-                </div>
+                          </div>
         </TabsContent>
           <TabsContent value="table">
                     <Table>

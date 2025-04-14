@@ -331,7 +331,7 @@ export default function ContactsPage() {
                 {viewType === "people" ? "Contact" : "Main Contact"}
               </th>
               <th className="text-left p-3 text-sm font-medium hidden md:table-cell">Location</th>
-              <th className="text-left p-3 text-sm font-medium">Attention Required</th>
+              <th className="text-left p-3 text-sm font-medium">Priority</th>
               <th className="text-left p-3 text-sm font-medium hidden lg:table-cell">Health Score</th>
               {viewType === "companies" && (
                 <th className="text-left p-3 text-sm font-medium hidden lg:table-cell">Lifetime Value</th>
@@ -359,7 +359,22 @@ export default function ContactsPage() {
                       {viewType === "people" ? (
                         <>
                           <div className="font-medium text-base">{contact.contactPerson}</div>
-                          <div className="text-xs text-muted-foreground -mt-0.25">{contact.name}</div>
+                          <div className="text-xs text-muted-foreground -mt-0.25 flex items-center gap-1">
+                            {contact.name}
+                            <span className="text-muted-foreground">|</span>
+                            <TooltipProvider>
+                              <Tooltip delayDuration={100}>
+                                <TooltipTrigger asChild>
+                                  <span className="text-muted-foreground cursor-help">
+                                    {formatMillions(getLifetimeValue(contact))}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Lifetime value of {formatMillions(getLifetimeValue(contact))}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
                         </>
                       ) : (
                         <div className="font-medium text-base">{contact.name}</div>
@@ -382,27 +397,44 @@ export default function ContactsPage() {
                     {contact.city}, {contact.state}
                   </div>
                 </td>
-                <td className="p-3">
-                  <Badge
-                    variant="outline"
-                    className={cn(
-                      contact.status === "inactive"
-                        ? "bg-gray-100 text-gray-800 border-gray-200"
-                        : contact.status === "urgent"
-                        ? "bg-red-100 text-red-800 border-red-200"
-                        : contact.status === "crucial"
-                        ? "bg-orange-100 text-orange-800 border-orange-200"
-                        : "bg-green-100 text-green-800 border-green-200"
-                    )}
-                  >
-                    {contact.status === "inactive"
-                      ? "Inactive"
-                      : contact.status === "urgent"
-                      ? "Urgent"
-                      : contact.status === "crucial"
-                      ? "Crucial"
-                      : "None"}
-                  </Badge>
+                <td className="px-4 py-4 whitespace-nowrap">
+                  {contact.status === "urgent" ? (
+                    <Badge className="bg-red-100 text-red-800 border-red-200 inline-flex items-center gap-2">
+                      <span>High</span>
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 rounded-full bg-red-500" />
+                        <div className="w-2 h-2 rounded-full bg-red-500" />
+                        <div className="w-2 h-2 rounded-full bg-red-500" />
+                      </div>
+                    </Badge>
+                  ) : contact.status === "crucial" ? (
+                    <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 inline-flex items-center gap-2">
+                      <span>Medium</span>
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                        <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                        <div className="w-2 h-2 rounded-full border border-yellow-500" />
+                      </div>
+                    </Badge>
+                  ) : contact.status === "none" ? (
+                    <Badge className="bg-green-100 text-green-800 border-green-200 inline-flex items-center gap-2">
+                      <span>Low</span>
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 rounded-full bg-green-500" />
+                        <div className="w-2 h-2 rounded-full border border-green-500" />
+                        <div className="w-2 h-2 rounded-full border border-green-500" />
+                      </div>
+                    </Badge>
+                  ) : contact.status === "inactive" ? (
+                    <Badge className="bg-gray-100 text-gray-800 border-gray-200 inline-flex items-center gap-2">
+                      <span>Inactive</span>
+                      <div className="flex gap-1">
+                        <div className="w-2 h-2 rounded-full border border-gray-500" />
+                        <div className="w-2 h-2 rounded-full border border-gray-500" />
+                        <div className="w-2 h-2 rounded-full border border-gray-500" />
+                      </div>
+                    </Badge>
+                  ) : null}
                 </td>
                 <td className="p-3 hidden lg:table-cell">
                   <div className="flex flex-col gap-1">
@@ -436,7 +468,7 @@ export default function ContactsPage() {
                   </div>
                 </td>
                 {viewType === "companies" && (
-                  <td className="p-3 hidden lg:table-cell">
+                  <td className="p-3 hidden lg:table-cell pl-6">
                     <div className="text-sm font-medium">
                       {formatMillions(getLifetimeValue(contact))}
                     </div>
