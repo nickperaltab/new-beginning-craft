@@ -397,7 +397,8 @@ export default function TeamPage() {
                 <Card key={member.id} className={cn(
                   member.type === "subcontractor" && "border-orange-200 bg-orange-50/50"
                 )}>
-                  <CardHeader>
+                  <Link href={`/team/${member.id}`}>
+                    <CardHeader>
                             <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                         <Avatar>
@@ -445,6 +446,7 @@ export default function TeamPage() {
                           </div>
                         </div>
                       </CardContent>
+                    </Link>
                     </Card>
                   ))}
                 </div>
@@ -468,7 +470,7 @@ export default function TeamPage() {
                     member.type === "subcontractor" && "bg-orange-50/50"
                   )}>
                             <TableCell>
-                      <div className="flex items-center gap-2">
+                      <Link href={`/team/${member.id}`} className="flex items-center gap-2">
                         <Avatar>
                           <AvatarImage src={member.image} />
                           <AvatarFallback>{member.initials}</AvatarFallback>
@@ -477,7 +479,7 @@ export default function TeamPage() {
                                   <div className="font-medium">{member.name}</div>
                           <div className="text-sm text-muted-foreground">{member.email}</div>
                                 </div>
-                              </div>
+                              </Link>
                             </TableCell>
                     <TableCell>{member.role}</TableCell>
                             <TableCell>
