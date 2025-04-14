@@ -10,7 +10,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Filter } from "lucide-react"
 
-export function ContactFilters({ selectedType, setSelectedType, selectedStatus, setSelectedStatus }) {
+interface ContactFiltersProps {
+  selectedType: string
+  setSelectedType: (type: string) => void
+  selectedStatus: string
+  setSelectedStatus: (status: string) => void
+}
+
+export function ContactFilters({ selectedType, setSelectedType, selectedStatus, setSelectedStatus }: ContactFiltersProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

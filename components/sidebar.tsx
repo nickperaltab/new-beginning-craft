@@ -2,10 +2,12 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useState } from "react"
 import {
   Calendar,
   Home,
   Layers,
+  User,
   Users,
   DollarSign,
   Activity,
@@ -13,8 +15,9 @@ import {
   Package,
   Store,
   ChevronDown,
-  UserPlus,
   Settings,
+  PanelLeftClose,
+  PanelLeft,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -22,7 +25,7 @@ import { Separator } from "@/components/ui/separator"
 
 const navItems = [
   { name: "Home", href: "/", icon: Home },
-  { name: "Contacts", href: "/contacts", icon: UserPlus },
+  { name: "Contacts", href: "/contacts", icon: User },
   { name: "Inventory", href: "/items", icon: Package },
   { separator: true },
   { name: "Jobs", href: "/jobs", icon: Layers },
@@ -53,12 +56,34 @@ type NavItem = {
 
 export function Sidebar() {
   const pathname = usePathname()
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   return (
-    <aside className="hidden md:flex w-64 flex-col bg-[#001a5c] text-white">
-      <div className="p-4 flex items-center">
-        <h1 className="text-2xl font-bold text-white"></h1>
+    <aside className={cn(
+      "hidden md:flex flex-col bg-[#001a5c] text-white transition-all duration-300 pt-2",
+      isCollapsed ? "w-[60px]" : "w-52"
+    )}>
+      <div className="flex-shrink-0">
+        <Button
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "w-full justify-start rounded-none text-white/70 hover:bg-transparent hover:text-white h-10",
+            isCollapsed ? "px-[17px]" : "px-3 gap-2"
+          )}
+          onClick={() => setIsCollapsed(!isCollapsed)}
+        >
+          {isCollapsed ? (
+            <PanelLeft className="h-5 w-5 opacity-70 hover:opacity-100" />
+          ) : (
+            <>
+              <PanelLeftClose className="h-5 w-5 opacity-70" />
+              <span className="text-[12px] opacity-70">collapse</span>
+            </>
+          )}
+        </Button>
       </div>
+      <Separator className="my-2 bg-[#0a2a6c]" />
       <div className="flex flex-col flex-1">
         {navItems.map((item, index) => {
           if ('separator' in item) {
@@ -73,13 +98,18 @@ export function Sidebar() {
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start gap-3 rounded-none px-4 py-2 text-white hover:bg-transparent hover:text-[#8ab4f8]",
+                  "w-full justify-start rounded-none text-white hover:bg-transparent hover:text-[#8ab4f8]",
+                  isCollapsed ? "px-[17px]" : "px-3 gap-2",
                   isActive && "bg-[#0066ff] hover:bg-[#0066ff] hover:text-white",
                 )}
               >
-                <Icon className="h-5 w-5" />
-                {item.name}
-                {item.hasDropdown && <ChevronDown className="ml-auto h-4 w-4" />}
+                <Icon className="h-5 w-5 flex-shrink-0" />
+                {!isCollapsed && (
+                  <>
+                    {item.name}
+                    {item.hasDropdown && <ChevronDown className="ml-auto h-4 w-4" />}
+                  </>
+                )}
               </Button>
             </Link>
           )

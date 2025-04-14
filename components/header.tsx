@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { UserNav } from "@/components/user-nav"
 import Link from "next/link"
+import Image from "next/image"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -49,15 +50,24 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-6">
+    <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-4">
       <div className="md:hidden">
         <Button variant="ghost" size="icon">
           <Menu className="h-5 w-5" />
         </Button>
       </div>
       <div className="flex-1 flex items-center gap-2 md:gap-4">
-        <div className="hidden md:block">
-          <h1 className="text-xl font-bold text-blue-600">FieldPro</h1>
+        <div className="hidden md:block -ml-1">
+          <Link href="/">
+            <Image
+              src="/method.svg"
+              alt="Method"
+              width={140}
+              height={37}
+              priority
+              className="dark:brightness-0 dark:invert"
+            />
+          </Link>
         </div>
         <div className="relative w-full max-w-md">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />

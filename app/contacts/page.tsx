@@ -19,6 +19,15 @@ import {
   Package,
   Upload,
   Download,
+  TrendingUp,
+  TrendingDown,
+  UserPlus,
+  Filter,
+  Settings,
+  UserCircle2,
+  Warehouse,
+  Repeat2,
+  ExternalLink,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -30,11 +39,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ContactFilters } from "@/components/contacts/contact-filters"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export default function ContactsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedType, setSelectedType] = useState("all")
   const [selectedStatus, setSelectedStatus] = useState("all")
+  const [selectedLocation, setSelectedLocation] = useState("all")
+  const [viewType, setViewType] = useState<"people" | "companies">("people")
 
   // Mock contacts data
   const contacts = [
@@ -48,12 +72,14 @@ export default function ContactsPage() {
       address: "123 Main St, Suite 101",
       city: "Metropolis",
       state: "NY",
-      status: "active",
+      status: "none",
       lastContact: "Mar 15, 2023",
       totalJobs: 12,
       openJobs: 2,
       totalSpend: 24500,
       notes: "Key account, premium service level",
+      healthScore: 85,
+      healthScoreTrend: 12,
     },
     {
       id: "cust-002",
@@ -65,12 +91,14 @@ export default function ContactsPage() {
       address: "456 Tech Blvd",
       city: "Silicon Valley",
       state: "CA",
-      status: "active",
+      status: "none",
       lastContact: "Mar 18, 2023",
       totalJobs: 8,
       openJobs: 1,
       totalSpend: 18750,
       notes: "Expanding their office, potential for more work",
+      healthScore: 92,
+      healthScoreTrend: 5,
     },
     {
       id: "cust-003",
@@ -82,12 +110,14 @@ export default function ContactsPage() {
       address: "789 River Rd, Building C",
       city: "Riverside",
       state: "NJ",
-      status: "active",
+      status: "crucial",
       lastContact: "Mar 10, 2023",
       totalJobs: 15,
       openJobs: 0,
       totalSpend: 32000,
       notes: "Multiple properties, regular maintenance contract",
+      healthScore: 95,
+      healthScoreTrend: -2,
     },
     {
       id: "vend-001",
@@ -99,12 +129,14 @@ export default function ContactsPage() {
       address: "100 Industrial Way",
       city: "Commerce",
       state: "TX",
-      status: "active",
+      status: "none",
       lastContact: "Mar 12, 2023",
       totalOrders: 45,
       openOrders: 3,
       totalPurchases: 78500,
       notes: "Primary supplier for HVAC components",
+      healthScore: 78,
+      healthScoreTrend: 8,
     },
     {
       id: "vend-002",
@@ -116,29 +148,14 @@ export default function ContactsPage() {
       address: "200 Electric Ave",
       city: "Voltage",
       state: "OH",
-      status: "active",
+      status: "urgent",
       lastContact: "Mar 5, 2023",
       totalOrders: 28,
       openOrders: 1,
       totalPurchases: 42000,
       notes: "Electrical components supplier, good pricing",
-    },
-    {
-      id: "sub-001",
-      name: "Expert Plumbing Services",
-      type: ["subcontractor"],
-      contactPerson: "David Martinez",
-      email: "dmartinez@expertplumbing.com",
-      phone: "(555) 678-9012",
-      address: "300 Plumber Lane",
-      city: "Watertown",
-      state: "MA",
-      status: "active",
-      lastContact: "Mar 8, 2023",
-      totalJobs: 18,
-      openJobs: 2,
-      totalPaid: 36000,
-      notes: "Reliable plumbing subcontractor, available on short notice",
+      healthScore: 45,
+      healthScoreTrend: -15,
     },
     {
       id: "cust-vend-001",
@@ -150,7 +167,7 @@ export default function ContactsPage() {
       address: "100 Health Way",
       city: "Metropolis",
       state: "NY",
-      status: "active",
+      status: "crucial",
       lastContact: "Mar 20, 2023",
       totalJobs: 24,
       openJobs: 3,
@@ -159,6 +176,8 @@ export default function ContactsPage() {
       openOrders: 0,
       totalPurchases: 12000,
       notes: "Both a customer and supplier of medical equipment",
+      healthScore: 30,
+      healthScoreTrend: -8,
     },
     {
       id: "cust-004",
@@ -170,12 +189,33 @@ export default function ContactsPage() {
       address: "500 Business Ave",
       city: "Metropolis",
       state: "NY",
-      status: "inactive",
+      status: "urgent",
       lastContact: "Jan 15, 2023",
       totalJobs: 5,
       openJobs: 0,
       totalSpend: 28000,
       notes: "Building under new management, follow up needed",
+      healthScore: 15,
+      healthScoreTrend: -25,
+    },
+    {
+      id: "vend-003",
+      name: "Old Parts Ltd",
+      type: ["vendor"],
+      contactPerson: "David Brown",
+      email: "dbrown@oldparts.com",
+      phone: "(555) 901-2345",
+      address: "300 Vintage Lane",
+      city: "Oldtown",
+      state: "PA",
+      status: "inactive",
+      lastContact: "Dec 1, 2022",
+      totalOrders: 15,
+      openOrders: 0,
+      totalPurchases: 25000,
+      notes: "No orders in last 6 months",
+      healthScore: 20,
+      healthScoreTrend: -30,
     },
   ]
 
@@ -190,20 +230,91 @@ export default function ContactsPage() {
     const matchesStatus = selectedStatus === "all" || contact.status === selectedStatus
 
     return matchesSearch && matchesType && matchesStatus
+  }).sort((a, b) => {
+    // Define status priority order
+    const statusPriority: Record<string, number> = {
+      urgent: 1,
+      crucial: 2,
+      none: 3,
+      inactive: 4
+    }
+    return statusPriority[a.status] - statusPriority[b.status]
   })
 
-  // Get contact type badge
-  const getContactTypeBadge = (types: string[]) => {
-    if (types.includes("customer") && types.includes("vendor")) {
-      return <Badge className="bg-purple-500">Customer & Vendor</Badge>
-    } else if (types.includes("customer")) {
-      return <Badge className="bg-blue-500">Customer</Badge>
-    } else if (types.includes("vendor")) {
-      return <Badge className="bg-green-500">Vendor</Badge>
-    } else if (types.includes("subcontractor")) {
-      return <Badge className="bg-orange-500">Subcontractor</Badge>
+  // Get contact type icon
+  const getContactTypeIcon = (types: string[]) => {
+    const getTooltipContent = () => {
+      if (types.includes("customer") && types.includes("vendor")) {
+        return "Customer & Vendor"
+      } else if (types.includes("customer")) {
+        return "Customer"
+      } else if (types.includes("vendor")) {
+        return "Vendor"
+      }
+      return ""
     }
-    return null
+
+    const icon = types.includes("customer") && types.includes("vendor") ? (
+      <div className="relative">
+        <UserCircle2 className="h-5 w-5 text-blue-500" />
+        <div className="absolute -bottom-0.5 -right-0.5 bg-white rounded-full p-[1px]">
+          <Warehouse className="h-2.5 w-2.5 text-green-500" />
+        </div>
+      </div>
+    ) : types.includes("customer") ? (
+      <UserCircle2 className="h-5 w-5 text-blue-500" />
+    ) : types.includes("vendor") ? (
+      <Warehouse className="h-5 w-5 text-green-500" />
+    ) : null
+
+    return (
+      <TooltipProvider>
+        <Tooltip delayDuration={100}>
+          <TooltipTrigger asChild>
+            <div>{icon}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{getTooltipContent()}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
+  // Get health score color
+  const getHealthScoreColor = (score: number) => {
+    if (score <= 33) return "text-red-500"
+    if (score <= 66) return "text-orange-500"
+    if (score <= 90) return "text-green-400"
+    return "text-green-600"
+  }
+
+  // Get health score background color
+  const getHealthScoreBgColor = (score: number) => {
+    if (score <= 33) return "bg-red-500"
+    if (score <= 66) return "bg-orange-500"
+    if (score <= 90) return "bg-green-400"
+    return "bg-green-600"
+  }
+
+  // Format currency in millions
+  const formatMillions = (value: number) => {
+    const millions = value / 1000000
+    return `$${millions.toFixed(2)} mln`
+  }
+
+  // Calculate lifetime value
+  const getLifetimeValue = (contact: typeof contacts[0]) => {
+    if (contact.type.includes("customer") && contact.type.includes("vendor")) {
+      return (contact.totalSpend || 0) + (contact.totalPurchases || 0)
+    }
+    if (contact.type.includes("customer")) {
+      return contact.totalSpend || 0
+    }
+    if (contact.type.includes("vendor")) {
+      return contact.totalPurchases || 0
+    }
+    return 0
   }
 
   // Render contact list
@@ -213,26 +324,58 @@ export default function ContactsPage() {
         <table className="w-full">
           <thead className="bg-muted/50">
             <tr>
-              <th className="text-left p-3 text-sm font-medium">Name</th>
-              <th className="text-left p-3 text-sm font-medium">Type</th>
-              <th className="text-left p-3 text-sm font-medium">Contact</th>
+              <th className="text-left p-3 text-sm font-medium">
+                {viewType === "people" ? "Name" : "Company"}
+              </th>
+              <th className="text-left p-3 text-sm font-medium">
+                {viewType === "people" ? "Contact" : "Main Contact"}
+              </th>
               <th className="text-left p-3 text-sm font-medium hidden md:table-cell">Location</th>
-              <th className="text-left p-3 text-sm font-medium">Status</th>
-              <th className="text-left p-3 text-sm font-medium hidden lg:table-cell">Activity</th>
-              <th className="text-right p-3 text-sm font-medium">Actions</th>
+              <th className="text-left p-3 text-sm font-medium">Attention Required</th>
+              <th className="text-left p-3 text-sm font-medium hidden lg:table-cell">Health Score</th>
+              {viewType === "companies" && (
+                <th className="text-left p-3 text-sm font-medium hidden lg:table-cell">Lifetime Value</th>
+              )}
+              <th className="text-left p-3 text-sm font-medium w-[85px]">Actions</th>
             </tr>
           </thead>
           <tbody>
             {contacts.map((contact) => (
-              <tr key={contact.id} className="border-t hover:bg-muted/20">
+              <tr 
+                key={contact.id} 
+                className="border-t hover:bg-muted/20 cursor-pointer relative"
+                onClick={(e) => {
+                  // Prevent navigation if clicking on dropdown
+                  if ((e.target as HTMLElement).closest('.dropdown-trigger')) {
+                    return;
+                  }
+                  window.location.href = `/contacts/${contact.id}`;
+                }}
+              >
                 <td className="p-3">
-                  <div className="font-medium">{contact.name}</div>
+                  <div className="flex items-center gap-4">
+                    {getContactTypeIcon(contact.type)}
+                    <div>
+                      {viewType === "people" ? (
+                        <>
+                          <div className="font-medium text-base">{contact.contactPerson}</div>
+                          <div className="text-xs text-muted-foreground -mt-0.25">{contact.name}</div>
+                        </>
+                      ) : (
+                        <div className="font-medium text-base">{contact.name}</div>
+                      )}
+                    </div>
+                  </div>
                 </td>
-                <td className="p-3">{getContactTypeBadge(contact.type)}</td>
                 <td className="p-3">
-                  <div className="text-sm">{contact.contactPerson}</div>
-                  <div className="text-xs text-muted-foreground">{contact.email}</div>
-                  <div className="text-xs text-muted-foreground">{contact.phone}</div>
+                  {viewType === "people" ? (
+                    <>
+                      <div className="text-sm">{contact.email}</div>
+                      <div className="text-xs text-muted-foreground">{contact.phone}</div>
+                    </>
+                  ) : (
+                    <div className="text-sm font-medium">{contact.contactPerson}</div>
+                  )}
                 </td>
                 <td className="p-3 hidden md:table-cell">
                   <div className="text-sm">
@@ -243,43 +386,78 @@ export default function ContactsPage() {
                   <Badge
                     variant="outline"
                     className={cn(
-                      contact.status === "active"
-                        ? "bg-green-100 text-green-800 border-green-200"
-                        : "bg-gray-100 text-gray-800 border-gray-200",
+                      contact.status === "inactive"
+                        ? "bg-gray-100 text-gray-800 border-gray-200"
+                        : contact.status === "urgent"
+                        ? "bg-red-100 text-red-800 border-red-200"
+                        : contact.status === "crucial"
+                        ? "bg-orange-100 text-orange-800 border-orange-200"
+                        : "bg-green-100 text-green-800 border-green-200"
                     )}
                   >
-                    {contact.status === "active" ? "Active" : "Inactive"}
+                    {contact.status === "inactive"
+                      ? "Inactive"
+                      : contact.status === "urgent"
+                      ? "Urgent"
+                      : contact.status === "crucial"
+                      ? "Crucial"
+                      : "None"}
                   </Badge>
                 </td>
                 <td className="p-3 hidden lg:table-cell">
-                  {contact.type.includes("customer") && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Jobs:</span>{" "}
-                      <span className="font-medium">
-                        {contact.openJobs} open / {contact.totalJobs} total
-                      </span>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center justify-center gap-1">
+                      <div className={`font-medium ${getHealthScoreColor(contact.healthScore)}`}>
+                        {contact.healthScore}
+                      </div>
+                      <TooltipProvider>
+                        <Tooltip delayDuration={100}>
+                          <TooltipTrigger asChild>
+                            <div>
+                              {contact.healthScoreTrend > 0 ? (
+                                <TrendingUp className="h-3 w-3 text-muted-foreground" />
+                              ) : (
+                                <TrendingDown className="h-3 w-3 text-muted-foreground" />
+                              )}
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{Math.abs(contact.healthScoreTrend)}% {contact.healthScoreTrend > 0 ? 'increase' : 'decrease'} in 14 days</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
-                  )}
-                  {contact.type.includes("vendor") && (
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Orders:</span>{" "}
-                      <span className="font-medium">
-                        {contact.openOrders} open / {contact.totalOrders} total
-                      </span>
+                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className={`h-full ${getHealthScoreBgColor(contact.healthScore)}`}
+                        style={{ width: `${contact.healthScore}%` }}
+                      />
                     </div>
-                  )}
-                  <div className="text-xs text-muted-foreground mt-1">Last contact: {contact.lastContact}</div>
+                  </div>
                 </td>
+                {viewType === "companies" && (
+                  <td className="p-3 hidden lg:table-cell">
+                    <div className="text-sm font-medium">
+                      {formatMillions(getLifetimeValue(contact))}
+                    </div>
+                  </td>
+                )}
                 <td className="p-3 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Link href={`/contacts/${contact.id}`}>
-                      <Button variant="outline" size="sm">
-                        View
-                      </Button>
-                    </Link>
+                  <div className="flex items-center justify-end gap-0.5">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(`/contacts/${contact.id}`, '_blank');
+                      }}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 dropdown-trigger">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -327,51 +505,105 @@ export default function ContactsPage() {
     )
   }
 
+  const ViewToggle = () => (
+    <div className="flex items-baseline gap-2 text-sm ml-3">
+      <button
+        onClick={() => setViewType("people")}
+        className={cn(
+          "text-blue-500 hover:text-blue-600",
+          viewType === "people" && "font-bold"
+        )}
+      >
+        people
+      </button>
+      <span className="text-muted-foreground">|</span>
+      <button
+        onClick={() => setViewType("companies")}
+        className={cn(
+          "text-blue-500 hover:text-blue-600",
+          viewType === "companies" && "font-bold"
+        )}
+      >
+        companies
+      </button>
+    </div>
+  )
+
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold">Contacts</h1>
-        <p className="text-muted-foreground">Manage customers, vendors, and subcontractors</p>
-      </div>
-
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div className="flex items-center gap-2 w-full md:w-auto">
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search contacts..."
-              className="w-full pl-8 bg-background"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <ContactFilters
-            selectedType={selectedType}
-            setSelectedType={setSelectedType}
-            selectedStatus={selectedStatus}
-            setSelectedStatus={setSelectedStatus}
-          />
-          <Button variant="outline" size="icon">
-            <SlidersHorizontal className="h-4 w-4" />
-          </Button>
+      <div className="flex justify-between items-start">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold">Contacts</h1>
+          <p className="text-muted-foreground">Manage customers and vendors</p>
         </div>
-
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex gap-2">
           <Button variant="outline">
-            <Upload className="h-4 w-4 mr-2" />
+            <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
           <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Link href="/contacts/new">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Contact
+          <Button>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Contact
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search contacts..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+          <div className="flex gap-2">
+            <Select value={selectedType} onValueChange={setSelectedType}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="customer">Customers</SelectItem>
+                <SelectItem value="vendor">Vendors</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="urgent">Urgent</SelectItem>
+                <SelectItem value="crucial">Crucial</SelectItem>
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Location" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Locations</SelectItem>
+                <SelectItem value="metropolis">Metropolis</SelectItem>
+                <SelectItem value="silicon-valley">Silicon Valley</SelectItem>
+                <SelectItem value="riverside">Riverside</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="icon">
+              <Filter className="h-4 w-4" />
             </Button>
-          </Link>
+            <Button variant="outline" size="icon">
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -380,28 +612,41 @@ export default function ContactsPage() {
           <TabsTrigger value="all">All Contacts</TabsTrigger>
           <TabsTrigger value="customers">Customers</TabsTrigger>
           <TabsTrigger value="vendors">Vendors</TabsTrigger>
-          <TabsTrigger value="subcontractors">Subcontractors</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="mt-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle>All Contacts</CardTitle>
-              <CardDescription>Showing {filteredContacts.length} contacts</CardDescription>
+              <div className="flex items-baseline">
+                <div className="flex items-baseline gap-3">
+                  <div className="flex items-baseline gap-1.5">
+                    <CardTitle>All Contacts</CardTitle>
+                    <span className="text-sm text-muted-foreground">({filteredContacts.length})</span>
+                  </div>
+                  <ViewToggle />
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>{renderContactList(filteredContacts)}</CardContent>
+            <CardContent className="pt-2">{renderContactList(filteredContacts)}</CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="customers" className="mt-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle>Customers</CardTitle>
-              <CardDescription>
-                Showing {filteredContacts.filter((c) => c.type.includes("customer")).length} customers
-              </CardDescription>
+              <div className="flex items-baseline">
+                <div className="flex items-baseline gap-3">
+                  <div className="flex items-baseline gap-1.5">
+                    <CardTitle>Customers</CardTitle>
+                    <span className="text-sm text-muted-foreground">
+                      ({filteredContacts.filter((c) => c.type.includes("customer")).length})
+                    </span>
+                  </div>
+                  <ViewToggle />
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-2">
               {renderContactList(filteredContacts.filter((contact) => contact.type.includes("customer")))}
             </CardContent>
           </Card>
@@ -410,27 +655,20 @@ export default function ContactsPage() {
         <TabsContent value="vendors" className="mt-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle>Vendors</CardTitle>
-              <CardDescription>
-                Showing {filteredContacts.filter((c) => c.type.includes("vendor")).length} vendors
-              </CardDescription>
+              <div className="flex items-baseline">
+                <div className="flex items-baseline gap-3">
+                  <div className="flex items-baseline gap-1.5">
+                    <CardTitle>Vendors</CardTitle>
+                    <span className="text-sm text-muted-foreground">
+                      ({filteredContacts.filter((c) => c.type.includes("vendor")).length})
+                    </span>
+                  </div>
+                  <ViewToggle />
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-2">
               {renderContactList(filteredContacts.filter((contact) => contact.type.includes("vendor")))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="subcontractors" className="mt-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle>Subcontractors</CardTitle>
-              <CardDescription>
-                Showing {filteredContacts.filter((c) => c.type.includes("subcontractor")).length} subcontractors
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {renderContactList(filteredContacts.filter((contact) => contact.type.includes("subcontractor")))}
             </CardContent>
           </Card>
         </TabsContent>
