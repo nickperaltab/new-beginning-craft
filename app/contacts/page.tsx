@@ -28,6 +28,8 @@ import {
   Warehouse,
   Repeat2,
   ExternalLink,
+  MapPin,
+  Sparkles,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -52,6 +54,114 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Progress } from "@/components/ui/progress"
+
+const styles = `
+  @keyframes gradient-x {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .tooltip-gradient {
+    position: relative;
+    border-radius: 0.5rem;
+  }
+
+  .tooltip-gradient::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 0.5rem;
+    background: linear-gradient(var(--angle, 0deg), #3B82F6, #A855F7, #2DD4BF);
+    background-size: 200% 200%;
+    animation: gradient-x 4s linear infinite;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .tooltip-gradient:hover::before {
+    opacity: 1;
+  }
+
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes rotate {
+    to {
+      --angle: 360deg;
+    }
+  }
+
+  .tooltip-gradient:hover::before {
+    animation: 
+      rotate 4s linear infinite,
+      gradient-x 4s linear infinite;
+  }
+
+  .tooltip-glow {
+    position: relative;
+    background: white;
+    border-radius: 0.75rem;
+  }
+
+  .tooltip-glow::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 0.75rem;
+    background: linear-gradient(
+      var(--angle, 0deg),
+      #3B82F6,
+      #A855F7,
+      #2DD4BF
+    );
+    opacity: 1;
+    transition: all 0.15s ease-in-out;
+    animation: rotate 8s linear infinite;
+  }
+
+  .tooltip-glow::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 0.5rem;
+    background: white;
+    z-index: 0;
+  }
+
+  .tooltip-glow:hover::before {
+    animation: rotate 3s linear infinite;
+  }
+
+  @property --angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @keyframes rotate {
+    to {
+      --angle: 360deg;
+    }
+  }
+
+  .tooltip-content {
+    position: relative;
+    z-index: 1;
+    padding: 1rem;
+  }
+`
+
+const styleSheet = document.createElement("style")
+styleSheet.innerText = styles
+document?.head?.appendChild(styleSheet)
 
 export default function ContactsPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -317,42 +427,207 @@ export default function ContactsPage() {
     return 0
   }
 
+  const getStatusBadge = (status: string) => {
+    const getTooltipContent = () => {
+      switch (status) {
+        case "urgent":
+          return "Missing follow-up after critical meeting. Action required within 24h."
+        case "crucial":
+          return "Multiple overdue invoices pending. Review and update payment status."
+        case "none":
+          return "Regular monitoring. Schedule next check-in."
+        case "inactive":
+          return "No activity in past 90 days. Consider reengagement strategy."
+        default:
+          return ""
+      }
+    }
+
+    const getBadgeColor = () => {
+      switch (status) {
+        case "urgent":
+          return "bg-red-100 hover:bg-red-200/70 text-red-800 border-red-200"
+        case "crucial":
+          return "bg-yellow-100 hover:bg-yellow-200/70 text-yellow-800 border-yellow-200"
+        case "none":
+          return "bg-green-100 hover:bg-green-200/70 text-green-800 border-green-200"
+        case "inactive":
+          return "bg-gray-100 hover:bg-gray-200/70 text-gray-800 border-gray-200"
+        default:
+          return "bg-gray-100 hover:bg-gray-200/70 text-gray-800 border-gray-200"
+      }
+    }
+
+    const getStatusLabel = () => {
+      switch (status) {
+        case "urgent":
+          return "High"
+        case "crucial":
+          return "Medium"
+        case "none":
+          return "Low"
+        case "inactive":
+          return "Inactive"
+        default:
+          return status
+      }
+    }
+
+    const getDots = () => {
+      switch (status) {
+        case "urgent":
+          return (
+            <div className="flex gap-1">
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+            </div>
+          )
+        case "crucial":
+          return (
+            <div className="flex gap-1">
+              <div className="w-2 h-2 rounded-full bg-yellow-500" />
+              <div className="w-2 h-2 rounded-full bg-yellow-500" />
+              <div className="w-2 h-2 rounded-full border border-yellow-500" />
+            </div>
+          )
+        case "none":
+          return (
+            <div className="flex gap-1">
+              <div className="w-2 h-2 rounded-full bg-green-500" />
+              <div className="w-2 h-2 rounded-full border border-green-500" />
+              <div className="w-2 h-2 rounded-full border border-green-500" />
+            </div>
+          )
+        case "inactive":
+          return (
+            <div className="flex gap-1">
+              <div className="w-2 h-2 rounded-full border border-gray-500" />
+              <div className="w-2 h-2 rounded-full border border-gray-500" />
+              <div className="w-2 h-2 rounded-full border border-gray-500" />
+            </div>
+          )
+        default:
+          return null
+      }
+    }
+
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <Badge className={cn("inline-flex items-center gap-2 transition-colors", getBadgeColor())}>
+              <span>{getStatusLabel()}</span>
+              {getDots()}
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-[320px] tooltip-glow">
+            <div className="tooltip-content">
+              <div className="flex items-start gap-2">
+                <Sparkles className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
+                <div>
+                  <span className="font-semibold">AI Insight:</span>
+                  <div className="text-sm">{getTooltipContent()}</div>
+                </div>
+              </div>
+            </div>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
+  const renderHealthScore = (score: number, trend: number) => {
+    return (
+      <div className="flex items-center gap-2">
+        <Progress value={score} className="w-[80px] h-[8px] [&>.bg-primary]:bg-[#1E40AF] [&>.bg-primary]:!opacity-100 bg-[#1E40AF]/20" />
+        <div className="flex items-center gap-1">
+          <span className="font-medium text-[14px]">{score}%</span>
+          {trend > 0 ? (
+            <TrendingUp className="h-4 w-4 text-green-500" />
+          ) : (
+            <TrendingDown className="h-4 w-4 text-red-500" />
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Filter contacts based on view type and other filters
+  const getFilteredContacts = () => {
+    let filtered = contacts.filter((contact) => {
+      const matchesSearch =
+        contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        contact.contactPerson.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        contact.email.toLowerCase().includes(searchQuery.toLowerCase())
+
+      const matchesType = selectedType === "all" || contact.type.includes(selectedType)
+      const matchesStatus = selectedStatus === "all" || contact.status === selectedStatus
+
+      return matchesSearch && matchesType && matchesStatus
+    })
+
+    // Filter based on view type
+    if (viewType === "people") {
+      // Show all contact persons
+      filtered = filtered.map(contact => ({
+        ...contact,
+        name: contact.name,  // Keep original company name for reference
+        displayName: contact.contactPerson,  // Use contact person as main display name
+        type: contact.type,  // Keep type for proper routing and icons
+      }))
+    } else if (viewType === "companies") {
+      filtered = filtered.filter(contact => contact.type.includes("customer"))
+    }
+
+    return filtered.sort((a, b) => {
+      // Define status priority order
+      const statusPriority: Record<string, number> = {
+        urgent: 1,
+        crucial: 2,
+        none: 3,
+        inactive: 4
+      }
+      return statusPriority[a.status] - statusPriority[b.status]
+    })
+  }
+
   // Render contact list
   const renderContactList = (contacts: typeof filteredContacts) => {
     return (
-      <div className="border rounded-lg overflow-hidden">
+      <div className="rounded-md border">
         <table className="w-full">
-          <thead className="bg-muted/50">
-            <tr>
-              <th className="text-left p-3 text-sm font-medium">
+          <thead>
+            <tr className="border-b bg-muted/50">
+              <th className="py-3 px-4 text-left font-medium">
                 {viewType === "people" ? "Name" : "Company"}
               </th>
-              <th className="text-left p-3 text-sm font-medium">
+              <th className="py-3 px-4 text-left font-medium">
                 {viewType === "people" ? "Contact" : "Main Contact"}
               </th>
-              <th className="text-left p-3 text-sm font-medium hidden md:table-cell">Location</th>
-              <th className="text-left p-3 text-sm font-medium">Priority</th>
-              <th className="text-left p-3 text-sm font-medium hidden lg:table-cell">Health Score</th>
-              {viewType === "companies" && (
-                <th className="text-left p-3 text-sm font-medium hidden lg:table-cell">Lifetime Value</th>
-              )}
-              <th className="text-left p-3 text-sm font-medium w-[85px]">Actions</th>
+              <th className="py-3 px-4 text-left font-medium">Location</th>
+              <th className="py-3 px-4 text-left font-medium">Priority</th>
+              <th className="py-3 px-4 text-left font-medium">Health Score</th>
+              <th className="py-3 px-4 text-left font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
             {contacts.map((contact) => (
               <tr 
                 key={contact.id} 
-                className="border-t hover:bg-muted/20 cursor-pointer relative"
+                className="border-b hover:bg-muted/50 cursor-pointer"
                 onClick={(e) => {
                   // Prevent navigation if clicking on dropdown
                   if ((e.target as HTMLElement).closest('.dropdown-trigger')) {
                     return;
                   }
-                  window.location.href = `/contacts/${contact.id}`;
+                  const path = viewType === "companies" 
+                    ? `/contacts/company/${contact.name.toLowerCase().replace(/\s+/g, '-')}` 
+                    : `/contacts/person/${contact.contactPerson.toLowerCase().replace(/\s+/g, '-')}`;
+                  window.location.href = path;
                 }}
               >
-                <td className="p-3">
+                <td className="py-3 px-4">
                   <div className="flex items-center gap-4">
                     {getContactTypeIcon(contact.type)}
                     <div>
@@ -382,7 +657,7 @@ export default function ContactsPage() {
                     </div>
                   </div>
                 </td>
-                <td className="p-3">
+                <td className="py-3 px-4">
                   {viewType === "people" ? (
                     <>
                       <div className="text-sm">{contact.email}</div>
@@ -392,142 +667,31 @@ export default function ContactsPage() {
                     <div className="text-sm font-medium">{contact.contactPerson}</div>
                   )}
                 </td>
-                <td className="p-3 hidden md:table-cell">
+                <td className="py-3 px-4">
                   <div className="text-sm">
                     {contact.city}, {contact.state}
                   </div>
                 </td>
-                <td className="px-4 py-4 whitespace-nowrap">
-                  {contact.status === "urgent" ? (
-                    <Badge className="bg-red-100 text-red-800 border-red-200 inline-flex items-center gap-2">
-                      <span>High</span>
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-red-500" />
-                        <div className="w-2 h-2 rounded-full bg-red-500" />
-                        <div className="w-2 h-2 rounded-full bg-red-500" />
-                      </div>
-                    </Badge>
-                  ) : contact.status === "crucial" ? (
-                    <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 inline-flex items-center gap-2">
-                      <span>Medium</span>
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                        <div className="w-2 h-2 rounded-full bg-yellow-500" />
-                        <div className="w-2 h-2 rounded-full border border-yellow-500" />
-                      </div>
-                    </Badge>
-                  ) : contact.status === "none" ? (
-                    <Badge className="bg-green-100 text-green-800 border-green-200 inline-flex items-center gap-2">
-                      <span>Low</span>
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-green-500" />
-                        <div className="w-2 h-2 rounded-full border border-green-500" />
-                        <div className="w-2 h-2 rounded-full border border-green-500" />
-                      </div>
-                    </Badge>
-                  ) : contact.status === "inactive" ? (
-                    <Badge className="bg-gray-100 text-gray-800 border-gray-200 inline-flex items-center gap-2">
-                      <span>Inactive</span>
-                      <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full border border-gray-500" />
-                        <div className="w-2 h-2 rounded-full border border-gray-500" />
-                        <div className="w-2 h-2 rounded-full border border-gray-500" />
-                      </div>
-                    </Badge>
-                  ) : null}
+                <td className="py-3 px-4">
+                  {getStatusBadge(contact.status)}
                 </td>
-                <td className="p-3 hidden lg:table-cell">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center justify-center gap-1">
-                      <div className={`font-medium ${getHealthScoreColor(contact.healthScore)}`}>
-                        {contact.healthScore}
-                      </div>
-                      <TooltipProvider>
-                        <Tooltip delayDuration={100}>
-                          <TooltipTrigger asChild>
-                            <div>
-                              {contact.healthScoreTrend > 0 ? (
-                                <TrendingUp className="h-3 w-3 text-muted-foreground" />
-                              ) : (
-                                <TrendingDown className="h-3 w-3 text-muted-foreground" />
-                              )}
-                            </div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{Math.abs(contact.healthScoreTrend)}% {contact.healthScoreTrend > 0 ? 'increase' : 'decrease'} in 14 days</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
-                    <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className={`h-full ${getHealthScoreBgColor(contact.healthScore)}`}
-                        style={{ width: `${contact.healthScore}%` }}
-                      />
-                    </div>
-                  </div>
+                <td className="py-3 px-4">
+                  {renderHealthScore(contact.healthScore, contact.healthScoreTrend)}
                 </td>
-                {viewType === "companies" && (
-                  <td className="p-3 hidden lg:table-cell pl-6">
-                    <div className="text-sm font-medium">
-                      {formatMillions(getLifetimeValue(contact))}
-                    </div>
-                  </td>
-                )}
-                <td className="p-3 text-right">
-                  <div className="flex items-center justify-end gap-0.5">
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 w-8 p-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(`/contacts/${contact.id}`, '_blank');
-                      }}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 dropdown-trigger">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Phone className="h-4 w-4 mr-2" />
-                          Call
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Mail className="h-4 w-4 mr-2" />
-                          Email
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        {contact.type.includes("customer") && (
-                          <>
-                            <DropdownMenuItem>
-                              <Calendar className="h-4 w-4 mr-2" />
-                              Schedule Visit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <FileText className="h-4 w-4 mr-2" />
-                              Create Job
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <DollarSign className="h-4 w-4 mr-2" />
-                              Create Invoice
-                            </DropdownMenuItem>
-                          </>
-                        )}
-                        {contact.type.includes("vendor") && (
-                          <DropdownMenuItem>
-                            <Package className="h-4 w-4 mr-2" />
-                            Create Purchase Order
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+                <td className="py-3 px-4">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="dropdown-trigger">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>View Details</DropdownMenuItem>
+                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </td>
               </tr>
             ))}
@@ -653,13 +817,13 @@ export default function ContactsPage() {
                 <div className="flex items-baseline gap-3">
                   <div className="flex items-baseline gap-1.5">
                     <CardTitle>All Contacts</CardTitle>
-                    <span className="text-sm text-muted-foreground">({filteredContacts.length})</span>
+                    <span className="text-sm text-muted-foreground">({getFilteredContacts().length})</span>
                   </div>
                   <ViewToggle />
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="pt-2">{renderContactList(filteredContacts)}</CardContent>
+            <CardContent className="pt-2">{renderContactList(getFilteredContacts())}</CardContent>
           </Card>
         </TabsContent>
 
@@ -671,7 +835,7 @@ export default function ContactsPage() {
                   <div className="flex items-baseline gap-1.5">
                     <CardTitle>Customers</CardTitle>
                     <span className="text-sm text-muted-foreground">
-                      ({filteredContacts.filter((c) => c.type.includes("customer")).length})
+                      ({getFilteredContacts().filter((c) => c.type.includes("customer")).length})
                     </span>
                   </div>
                   <ViewToggle />
@@ -679,7 +843,7 @@ export default function ContactsPage() {
               </div>
             </CardHeader>
             <CardContent className="pt-2">
-              {renderContactList(filteredContacts.filter((contact) => contact.type.includes("customer")))}
+              {renderContactList(getFilteredContacts().filter((contact) => contact.type.includes("customer")))}
             </CardContent>
           </Card>
         </TabsContent>
@@ -692,7 +856,7 @@ export default function ContactsPage() {
                   <div className="flex items-baseline gap-1.5">
                     <CardTitle>Vendors</CardTitle>
                     <span className="text-sm text-muted-foreground">
-                      ({filteredContacts.filter((c) => c.type.includes("vendor")).length})
+                      ({getFilteredContacts().filter((c) => c.type.includes("vendor")).length})
                     </span>
                   </div>
                   <ViewToggle />
@@ -700,7 +864,7 @@ export default function ContactsPage() {
               </div>
             </CardHeader>
             <CardContent className="pt-2">
-              {renderContactList(filteredContacts.filter((contact) => contact.type.includes("vendor")))}
+              {renderContactList(getFilteredContacts().filter((contact) => contact.type.includes("vendor")))}
             </CardContent>
           </Card>
         </TabsContent>
