@@ -50,7 +50,7 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-4">
+    <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center gap-4 border-b bg-background px-4">
       <div className="md:hidden">
         <Button variant="ghost" size="icon">
           <Menu className="h-5 w-5" />

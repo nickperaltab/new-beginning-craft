@@ -13,7 +13,7 @@ export function TooltipWithGlow({ children, className, ...props }: TooltipWithGl
     <TooltipContent 
       className={cn(
         "relative bg-white rounded-xl overflow-hidden",
-        "before:absolute before:inset-[-2px] before:bg-gradient-to-r before:from-blue-500 before:via-purple-500 before:to-teal-500 before:rounded-xl before:animate-[gradient_3s_linear_infinite] before:transition-opacity before:duration-150 before:ease-in-out",
+        "before:absolute before:inset-[-2px] before:bg-gradient-to-r before:from-blue-300 before:via-purple-400 before:to-teal-300 before:rounded-xl before:animate-[gradient_4s_linear_infinite]",
         "after:absolute after:inset-[3px] after:bg-white after:rounded-lg after:z-[0]",
         className
       )} 

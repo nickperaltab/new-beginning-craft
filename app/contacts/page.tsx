@@ -221,6 +221,66 @@ export default function ContactsPage() {
       healthScore: 20,
       healthScoreTrend: -30,
     },
+    {
+      id: "ind-001",
+      name: "",
+      type: ["customer"],
+      contactPerson: "Alex Rivera",
+      email: "alex.rivera@gmail.com",
+      phone: "(555) 123-9876",
+      address: "742 Park Avenue",
+      city: "New York",
+      state: "NY",
+      status: "none",
+      lastContact: "Mar 25, 2023",
+      totalJobs: 3,
+      openJobs: 1,
+      totalSpend: 15000,
+      notes: "High-value individual client, luxury apartment renovations",
+      healthScore: 88,
+      healthScoreTrend: 5,
+      isIndividual: true
+    },
+    {
+      id: "ind-002",
+      name: "",
+      type: ["customer"],
+      contactPerson: "Maria Chen",
+      email: "maria.chen@outlook.com",
+      phone: "(555) 234-8765",
+      address: "123 Lake View Dr",
+      city: "Los Angeles",
+      state: "CA",
+      status: "crucial",
+      lastContact: "Mar 22, 2023",
+      totalJobs: 5,
+      openJobs: 2,
+      totalSpend: 45000,
+      notes: "Regular client, multiple property maintenance",
+      healthScore: 92,
+      healthScoreTrend: 8,
+      isIndividual: true
+    },
+    {
+      id: "ind-003",
+      name: "",
+      type: ["customer"],
+      contactPerson: "David Kumar",
+      email: "david.kumar@yahoo.com",
+      phone: "(555) 345-7654",
+      address: "567 Highland Ave",
+      city: "Chicago",
+      state: "IL",
+      status: "none",
+      lastContact: "Mar 20, 2023",
+      totalJobs: 2,
+      openJobs: 0,
+      totalSpend: 28000,
+      notes: "New high-potential client",
+      healthScore: 85,
+      healthScoreTrend: 10,
+      isIndividual: true
+    }
   ]
 
   // Filter contacts based on search query, type, and status
@@ -485,7 +545,7 @@ export default function ContactsPage() {
         type: contact.type,  // Keep type for proper routing and icons
       }))
     } else if (viewType === "companies") {
-      filtered = filtered.filter(contact => contact.type.includes("customer"))
+      filtered = filtered.filter(contact => contact.type.includes("customer") && !contact.isIndividual)
     }
 
     return filtered.sort((a, b) => {
@@ -510,6 +570,9 @@ export default function ContactsPage() {
               <th className="py-3 px-4 text-left font-medium">
                 {viewType === "people" ? "Name" : "Company"}
               </th>
+              {viewType === "people" && (
+                <th className="py-3 px-4 text-left font-medium">Type</th>
+              )}
               <th className="py-3 px-4 text-left font-medium">
                 {viewType === "people" ? "Contact" : "Main Contact"}
               </th>
@@ -543,8 +606,14 @@ export default function ContactsPage() {
                         <>
                           <div className="font-medium text-base">{contact.contactPerson}</div>
                           <div className="text-xs text-muted-foreground -mt-0.25 flex items-center gap-1">
-                            {contact.name}
-                            <span className="text-muted-foreground">|</span>
+                            {contact.isIndividual ? (
+                              <span>Spent</span>
+                            ) : (
+                              <>
+                                {contact.name}
+                                <span className="text-muted-foreground">|</span>
+                              </>
+                            )}
                             <TooltipProvider>
                               <Tooltip delayDuration={100}>
                                 <TooltipTrigger asChild>
@@ -565,6 +634,15 @@ export default function ContactsPage() {
                     </div>
                   </div>
                 </td>
+                {viewType === "people" && (
+                  <td className="py-3 px-4">
+                    <Badge variant="outline" className={cn(
+                      "font-medium bg-white text-gray-500 border-gray-200",
+                    )}>
+                      {contact.isIndividual ? "B2C" : "B2B"}
+                    </Badge>
+                  </td>
+                )}
                 <td className="py-3 px-4">
                   {viewType === "people" ? (
                     <>

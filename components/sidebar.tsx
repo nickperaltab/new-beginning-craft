@@ -60,7 +60,7 @@ export function Sidebar() {
 
   return (
     <aside className={cn(
-      "hidden md:flex flex-col bg-[#001a5c] text-white transition-all duration-300 pt-2",
+      "hidden md:flex flex-col bg-[#001a5c] text-white transition-all duration-300 pt-2 fixed h-[calc(100vh-4rem)] top-16 left-0",
       isCollapsed ? "w-[60px]" : "w-52"
     )}>
       <div className="flex-shrink-0">

@@ -21,9 +21,9 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <div className="flex min-h-screen flex-col">
             <Header />
-            <div className="flex flex-1">
+            <div className="flex flex-1 pt-16">
               <Sidebar />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1 md:ml-52 transition-all duration-300 w-full">{children}</main>
             </div>
           </div>
         </ThemeProvider>
