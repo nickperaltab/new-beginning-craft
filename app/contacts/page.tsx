@@ -55,7 +55,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Progress } from "@/components/ui/progress"
-import { TooltipWithGlow } from "@/components/ui/tooltip-with-glow"
+import { TooltipWithGlow } from "../components/ui/tooltip-with-glow"
 
 export default function ContactsPage() {
   const [searchQuery, setSearchQuery] = useState("")
