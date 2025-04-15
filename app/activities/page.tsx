@@ -121,22 +121,26 @@ export default function ActivitiesPage() {
               mode="single"
               selected={date}
               onSelect={(day) => day && setDate(day)}
-              className="rounded-md border w-full"
+              className="rounded-md border w-full p-0"
               classNames={{
                 day_today: "bg-primary/5 text-primary font-bold",
                 day: "h-24 w-full relative",
                 cell: "h-24 w-full p-0",
-                table: "w-full border-collapse",
+                table: "w-full border-collapse pt-6",
                 head_cell: "text-muted-foreground font-normal text-base p-4 text-center relative w-full",
                 nav_button: "h-9 w-9 bg-transparent hover:bg-muted/50 rounded-md inline-flex items-center justify-center",
-                nav: "flex items-center justify-between border-b p-4",
-                caption: "text-lg font-semibold",
-                months: "w-full",
-                month: "space-y-4",
+                nav: "absolute top-6 left-0 right-0 flex items-center justify-between px-6 py-4 z-10",
+                caption: "text-lg font-semibold text-center flex-1 pb-2",
+                caption_label: "text-lg font-semibold",
+                nav_button_previous: "absolute left-4",
+                nav_button_next: "absolute right-4",
+                months: "w-full pt-6",
+                month: "w-full",
                 tbody: "border-t",
                 head_row: "grid grid-cols-7 w-full",
                 row: "grid grid-cols-7 w-full",
                 head: "w-full",
+                root: "w-full flex flex-col relative",
                 day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
                 day_outside: "opacity-50",
               }}
