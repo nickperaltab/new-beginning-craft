@@ -430,16 +430,32 @@ export default function ContactsPage() {
   }
 
   const renderHealthScore = (score: number, trend: number) => {
+    // Generate a random percentage between 5 and 35
+    const changePercent = Math.floor(Math.random() * 31) + 5;
+    
+    const trendTooltip = trend > 0 
+      ? `Increased ${changePercent}% in last 14 days`
+      : `Decreased ${changePercent}% in last 14 days`;
+
     return (
       <div className="flex items-center gap-2">
         <Progress value={score} className="w-[80px] h-[8px] [&>.bg-primary]:bg-[#1E40AF] [&>.bg-primary]:!opacity-100 bg-[#1E40AF]/20" />
         <div className="flex items-center gap-1">
           <span className="font-medium text-[14px]">{score}%</span>
-          {trend > 0 ? (
-            <TrendingUp className="h-4 w-4 text-green-500" />
-          ) : (
-            <TrendingDown className="h-4 w-4 text-red-500" />
-          )}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                {trend > 0 ? (
+                  <TrendingUp className="h-4 w-4 text-green-500" />
+                ) : (
+                  <TrendingDown className="h-4 w-4 text-red-500" />
+                )}
+              </TooltipTrigger>
+              <TooltipContent className="py-2 px-3">
+                <p className="text-sm">{trendTooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
     )
