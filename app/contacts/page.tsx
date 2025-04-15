@@ -55,113 +55,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Progress } from "@/components/ui/progress"
-
-const styles = `
-  @keyframes gradient-x {
-    0%, 100% {
-      background-position: 0% 50%;
-    }
-    50% {
-      background-position: 100% 50%;
-    }
-  }
-
-  .tooltip-gradient {
-    position: relative;
-    border-radius: 0.5rem;
-  }
-
-  .tooltip-gradient::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 0.5rem;
-    background: linear-gradient(var(--angle, 0deg), #3B82F6, #A855F7, #2DD4BF);
-    background-size: 200% 200%;
-    animation: gradient-x 4s linear infinite;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-  }
-
-  .tooltip-gradient:hover::before {
-    opacity: 1;
-  }
-
-  @property --angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  @keyframes rotate {
-    to {
-      --angle: 360deg;
-    }
-  }
-
-  .tooltip-gradient:hover::before {
-    animation: 
-      rotate 4s linear infinite,
-      gradient-x 4s linear infinite;
-  }
-
-  .tooltip-glow {
-    position: relative;
-    background: white;
-    border-radius: 0.75rem;
-  }
-
-  .tooltip-glow::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 0.75rem;
-    background: linear-gradient(
-      var(--angle, 0deg),
-      #3B82F6,
-      #A855F7,
-      #2DD4BF
-    );
-    opacity: 1;
-    transition: all 0.15s ease-in-out;
-    animation: rotate 8s linear infinite;
-  }
-
-  .tooltip-glow::after {
-    content: '';
-    position: absolute;
-    inset: 3px;
-    border-radius: 0.5rem;
-    background: white;
-    z-index: 0;
-  }
-
-  .tooltip-glow:hover::before {
-    animation: rotate 3s linear infinite;
-  }
-
-  @property --angle {
-    syntax: '<angle>';
-    initial-value: 0deg;
-    inherits: false;
-  }
-
-  @keyframes rotate {
-    to {
-      --angle: 360deg;
-    }
-  }
-
-  .tooltip-content {
-    position: relative;
-    z-index: 1;
-    padding: 1rem;
-  }
-`
-
-const styleSheet = document.createElement("style")
-styleSheet.innerText = styles
-document?.head?.appendChild(styleSheet)
+import { TooltipWithGlow } from "@/components/ui/tooltip-with-glow"
 
 export default function ContactsPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -521,17 +415,15 @@ export default function ContactsPage() {
               {getDots()}
             </Badge>
           </TooltipTrigger>
-          <TooltipContent className="max-w-[320px] tooltip-glow">
-            <div className="tooltip-content">
-              <div className="flex items-start gap-2">
-                <Sparkles className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
-                <div>
-                  <span className="font-semibold">AI Insight:</span>
-                  <div className="text-sm">{getTooltipContent()}</div>
-                </div>
+          <TooltipWithGlow className="max-w-[320px]">
+            <div className="flex items-start gap-2">
+              <Sparkles className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
+              <div>
+                <span className="font-semibold">AI Insight:</span>
+                <div className="text-sm">{getTooltipContent()}</div>
               </div>
             </div>
-          </TooltipContent>
+          </TooltipWithGlow>
         </Tooltip>
       </TooltipProvider>
     )
