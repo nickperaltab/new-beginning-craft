@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowUpRight, Calendar, CheckCircle, Clock, DollarSign, FileText } from "lucide-react"
+import { ArrowUpRight, Calendar, CheckCircle, Clock, DollarSign, FileText, Mail, Sparkles, UserPlus } from "lucide-react"
 import Link from "next/link"
 import { DashboardMetrics } from "@/components/dashboard-metrics"
 import { RecentWorkOrders } from "@/components/recent-work-orders"
@@ -12,6 +12,41 @@ export default function Dashboard() {
       <div className="flex flex-col gap-2">
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <p className="text-muted-foreground">Welcome to your field service management system</p>
+      </div>
+
+      <div className="relative bg-white rounded-xl overflow-hidden">
+        <div className="absolute inset-[-2px] bg-gradient-to-r from-blue-300 via-purple-400 to-teal-300 rounded-xl animate-[gradient_8s_linear_infinite]" />
+        <div className="relative bg-gradient-to-r from-blue-50/[0.02] via-purple-50/[0.02] to-teal-50/[0.02] m-[3px] p-6 rounded-lg z-[1]">
+          <div className="absolute inset-0 bg-white/95 rounded-lg" />
+          <div className="relative z-[2]">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-5 w-5 text-blue-500" />
+              <h2 className="text-xl font-semibold">John's daily insights</h2>
+            </div>
+            <p className="text-muted-foreground mb-6">
+              You have several important tasks that need attention today: 3 unpaid overdue invoices, 8 customers requiring follow-up, 
+              and 3 customers lacking post-meeting follow-ups. Additionally, there are 4 overdue tasks that need to be addressed.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <Button variant="outline" className="justify-start gap-2">
+                <FileText className="h-4 w-4 text-red-500" />
+                Send 3 invoice reminders
+              </Button>
+              <Button variant="outline" className="justify-start gap-2">
+                <Mail className="h-4 w-4 text-orange-500" />
+                Follow up with 8 customers
+              </Button>
+              <Button variant="outline" className="justify-start gap-2">
+                <UserPlus className="h-4 w-4 text-blue-500" />
+                Contact 3 post-meeting customers
+              </Button>
+              <Button variant="outline" className="justify-start gap-2">
+                <Clock className="h-4 w-4 text-purple-500" />
+                View 4 overdue tasks
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <DashboardMetrics />

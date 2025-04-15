@@ -39,8 +39,10 @@ export function DashboardMetrics() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">{metric.title}</p>
-                  <p className="text-2xl font-bold">{metric.value}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{metric.change}</p>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-2xl font-bold">{metric.value}</p>
+                    <p className="text-xs text-muted-foreground">({metric.change})</p>
+                  </div>
                 </div>
                 <div className="rounded-full p-2 bg-blue-100">
                   <Icon className="h-5 w-5 text-blue-600" />

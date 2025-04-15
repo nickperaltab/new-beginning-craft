@@ -18,6 +18,8 @@ import {
   Settings,
   PanelLeftClose,
   PanelLeft,
+  List,
+  ListChecks,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -26,6 +28,7 @@ import { Separator } from "@/components/ui/separator"
 const navItems = [
   { name: "Home", href: "/", icon: Home },
   { name: "Contacts", href: "/contacts", icon: User },
+  { name: "Activities", href: "/activities", icon: ListChecks },
   { name: "Inventory", href: "/items", icon: Package },
   { separator: true },
   { name: "Jobs", href: "/jobs", icon: Layers },
