@@ -1,27 +1,30 @@
-'use client';
+"use client"
 
-import { cn } from "@/lib/utils";
-import { TooltipContent } from "@/components/ui/tooltip";
-import { ComponentPropsWithoutRef } from "react";
+import * as React from "react"
+import * as TooltipPrimitive from "@radix-ui/react-tooltip"
+import { cn } from "@/lib/utils"
 
-interface TooltipWithGlowProps extends ComponentPropsWithoutRef<typeof TooltipContent> {
-  children: React.ReactNode;
+interface TooltipWithGlowProps extends React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content> {
+  children: React.ReactNode
+  className?: string
+  sideOffset?: number
 }
 
-export function TooltipWithGlow({ children, className, ...props }: TooltipWithGlowProps) {
+export function TooltipWithGlow({ className, children, sideOffset = 4, ...props }: TooltipWithGlowProps) {
   return (
-    <TooltipContent 
+    <TooltipPrimitive.Content
+      sideOffset={sideOffset}
       className={cn(
-        "relative bg-white rounded-xl overflow-hidden",
-        "before:absolute before:inset-[-2px] before:bg-gradient-to-r before:from-blue-300 before:via-purple-400 before:to-teal-300 before:rounded-xl before:animate-[gradient_4s_linear_infinite]",
-        "after:absolute after:inset-[3px] after:bg-white after:rounded-lg after:z-[0]",
+        "z-50 rounded-lg bg-white p-[3px]",
+        "relative before:absolute before:inset-0 before:rounded-lg before:bg-gradient-to-r before:from-blue-400/60 before:via-purple-400/60 before:to-pink-400/60 before:animate-[gradient_3s_linear_infinite] before:z-[-1] before:content-['']",
         className
-      )} 
+      )}
       {...props}
     >
-      <div className="relative z-[1] p-4">
+      <div className="relative z-10 bg-white rounded-[6px] p-3">
         {children}
       </div>
-    </TooltipContent>
-  );
+      <TooltipPrimitive.Arrow className="fill-white" />
+    </TooltipPrimitive.Content>
+  )
 } 

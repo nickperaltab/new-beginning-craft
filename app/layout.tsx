@@ -1,8 +1,11 @@
 import type React from "react"
 import "@/app/globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
-import { Sidebar } from "@/components/sidebar"
+import { SidebarProvider } from "@/components/sidebar"
 import { Header } from "@/components/header"
+import { MainContent } from "@/components/main-content"
+import { Toaster } from "@/components/ui/toaster"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 export const metadata = {
   title: "Field Service Management",
@@ -19,13 +22,17 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <div className="flex min-h-screen flex-col">
-            <Header />
-            <div className="flex flex-1 pt-16">
-              <Sidebar />
-              <main className="flex-1 md:ml-52 transition-all duration-300 w-full">{children}</main>
-            </div>
-          </div>
+          <TooltipProvider>
+            <SidebarProvider>
+              <div className="flex min-h-screen flex-col">
+                <Header />
+                <div className="flex flex-1 pt-16">
+                  <MainContent>{children}</MainContent>
+                </div>
+              </div>
+            </SidebarProvider>
+          </TooltipProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

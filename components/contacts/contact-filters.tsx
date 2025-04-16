@@ -13,11 +13,11 @@ import { Filter } from "lucide-react"
 interface ContactFiltersProps {
   selectedType: string
   setSelectedType: (type: string) => void
-  selectedStatus: string
-  setSelectedStatus: (status: string) => void
+  selectedPriority: string
+  setSelectedPriority: (priority: string) => void
 }
 
-export function ContactFilters({ selectedType, setSelectedType, selectedStatus, setSelectedStatus }: ContactFiltersProps) {
+export function ContactFilters({ selectedType, setSelectedType, selectedPriority, setSelectedPriority }: ContactFiltersProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -27,9 +27,6 @@ export function ContactFilters({ selectedType, setSelectedType, selectedStatus, 
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuItem className="font-medium">Filter by Type</DropdownMenuItem>
-        <DropdownMenuItem className={selectedType === "all" ? "bg-muted" : ""} onClick={() => setSelectedType("all")}>
-          All Types
-        </DropdownMenuItem>
         <DropdownMenuItem
           className={selectedType === "customer" ? "bg-muted" : ""}
           onClick={() => setSelectedType("customer")}
@@ -42,29 +39,35 @@ export function ContactFilters({ selectedType, setSelectedType, selectedStatus, 
         >
           Vendors
         </DropdownMenuItem>
-        <DropdownMenuItem
-          className={selectedType === "subcontractor" ? "bg-muted" : ""}
-          onClick={() => setSelectedType("subcontractor")}
-        >
-          Subcontractors
-        </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="font-medium">Filter by Status</DropdownMenuItem>
+        <DropdownMenuItem className="font-medium">Filter by Priority</DropdownMenuItem>
         <DropdownMenuItem
-          className={selectedStatus === "all" ? "bg-muted" : ""}
-          onClick={() => setSelectedStatus("all")}
+          className={selectedPriority === "all" ? "bg-muted" : ""}
+          onClick={() => setSelectedPriority("all")}
         >
-          All Statuses
+          All Priorities
         </DropdownMenuItem>
         <DropdownMenuItem
-          className={selectedStatus === "active" ? "bg-muted" : ""}
-          onClick={() => setSelectedStatus("active")}
+          className={selectedPriority === "high" ? "bg-muted" : ""}
+          onClick={() => setSelectedPriority("high")}
         >
-          Active
+          High
         </DropdownMenuItem>
         <DropdownMenuItem
-          className={selectedStatus === "inactive" ? "bg-muted" : ""}
-          onClick={() => setSelectedStatus("inactive")}
+          className={selectedPriority === "medium" ? "bg-muted" : ""}
+          onClick={() => setSelectedPriority("medium")}
+        >
+          Medium
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className={selectedPriority === "low" ? "bg-muted" : ""}
+          onClick={() => setSelectedPriority("low")}
+        >
+          Low
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className={selectedPriority === "inactive" ? "bg-muted" : ""}
+          onClick={() => setSelectedPriority("inactive")}
         >
           Inactive
         </DropdownMenuItem>

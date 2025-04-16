@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowUpRight, Calendar, CheckCircle, Clock, DollarSign, FileText, Mail, Sparkles, UserPlus } from "lucide-react"
+import { ArrowUpRight, Calendar, CheckCircle, ChevronRight, Clock, DollarSign, FileText, Mail, Sparkles, UserPlus } from "lucide-react"
 import Link from "next/link"
 import { DashboardMetrics } from "@/components/dashboard-metrics"
 import { RecentWorkOrders } from "@/components/recent-work-orders"
@@ -23,26 +23,29 @@ export default function Dashboard() {
               <Sparkles className="h-5 w-5 text-blue-500" />
               <h2 className="text-xl font-semibold">John's daily insights</h2>
             </div>
-            <p className="text-muted-foreground mb-6">
-              You have several important tasks that need attention today: 3 unpaid overdue invoices, 8 customers requiring follow-up, 
-              and 3 customers lacking post-meeting follow-ups. Additionally, there are 4 overdue tasks that need to be addressed.
+            <p className="text-muted-foreground mb-6 text-sm">
+              You have several important tasks that need your attention today
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <Button variant="outline" className="justify-start gap-2">
-                <FileText className="h-4 w-4 text-red-500" />
-                Send 3 invoice reminders
+              <Button variant="secondary" className="justify-start gap-2 py-3 group">
+                <FileText className="h-4 w-4 text-blue-500" />
+                <span className="flex-1 text-left">Send 3 invoice reminders</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
               </Button>
-              <Button variant="outline" className="justify-start gap-2">
+              <Button variant="secondary" className="justify-start gap-2 py-3 group">
                 <Mail className="h-4 w-4 text-orange-500" />
-                Follow up with 8 customers
+                <span className="flex-1 text-left">Follow up with 8 customers</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
               </Button>
-              <Button variant="outline" className="justify-start gap-2">
+              <Button variant="secondary" className="justify-start gap-2 py-3 group">
                 <UserPlus className="h-4 w-4 text-blue-500" />
-                Contact 3 post-meeting customers
+                <span className="flex-1 text-left">Contact 3 post-meeting customers</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
               </Button>
-              <Button variant="outline" className="justify-start gap-2">
+              <Button variant="secondary" className="justify-start gap-2 py-3 group">
                 <Clock className="h-4 w-4 text-purple-500" />
-                View 4 overdue tasks
+                <span className="flex-1 text-left">View 4 overdue tasks</span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
               </Button>
             </div>
           </div>

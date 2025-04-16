@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { createContext, useContext, useState } from "react"
 import {
   Calendar,
   Home,
@@ -25,10 +25,17 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
+const SidebarContext = createContext<{ isCollapsed: boolean }>({ isCollapsed: false })
+
+export function useSidebar() {
+  return useContext(SidebarContext)
+}
+
 const navItems = [
   { name: "Home", href: "/", icon: Home },
   { name: "Contacts", href: "/contacts", icon: User },
   { name: "Activities", href: "/activities", icon: ListChecks },
+  { name: "Opportunities", href: "/opportunities", icon: BarChart2 },
   { name: "Inventory", href: "/items", icon: Package },
   { separator: true },
   { name: "Jobs", href: "/jobs", icon: Layers },
@@ -57,9 +64,24 @@ type NavItem = {
   hasDropdown?: never
 }
 
-export function Sidebar() {
-  const pathname = usePathname()
+export function SidebarProvider({ children }: { children: React.ReactNode }) {
   const [isCollapsed, setIsCollapsed] = useState(false)
+  
+  return (
+    <SidebarContext.Provider value={{ isCollapsed }}>
+      <Sidebar onCollapse={setIsCollapsed} isCollapsed={isCollapsed} />
+      {children}
+    </SidebarContext.Provider>
+  )
+}
+
+interface SidebarProps {
+  isCollapsed: boolean
+  onCollapse: (collapsed: boolean) => void
+}
+
+export function Sidebar({ isCollapsed, onCollapse }: SidebarProps) {
+  const pathname = usePathname()
 
   return (
     <aside className={cn(
@@ -74,7 +96,7 @@ export function Sidebar() {
             "w-full justify-start rounded-none text-white/70 hover:bg-transparent hover:text-white h-10",
             isCollapsed ? "px-[17px]" : "px-3 gap-2"
           )}
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={() => onCollapse(!isCollapsed)}
         >
           {isCollapsed ? (
             <PanelLeft className="h-5 w-5 opacity-70 hover:opacity-100" />

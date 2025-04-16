@@ -30,6 +30,9 @@ import {
   ExternalLink,
   MapPin,
   Sparkles,
+  Star,
+  Trash2,
+  Building,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -56,6 +59,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Progress } from "@/components/ui/progress"
 import { TooltipWithGlow } from "../components/ui/tooltip-with-glow"
+import { AddContactModal } from "@/app/components/contacts/add-contact-modal"
 
 export default function ContactsPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -63,9 +67,8 @@ export default function ContactsPage() {
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [selectedLocation, setSelectedLocation] = useState("all")
   const [viewType, setViewType] = useState<"people" | "companies">("people")
-
-  // Mock contacts data
-  const contacts = [
+  const [isAddContactModalOpen, setIsAddContactModalOpen] = useState(false)
+  const [contacts, setContacts] = useState([
     {
       id: "cust-001",
       name: "Acme Corp",
@@ -281,7 +284,30 @@ export default function ContactsPage() {
       healthScoreTrend: 10,
       isIndividual: true
     }
-  ]
+  ])
+
+  const handleAddContact = (newContact: any) => {
+    // Generate a unique ID for the new contact
+    const id = `cust-${Math.random().toString(36).substr(2, 9)}`
+    
+    // Create the contact object with default values
+    const contactToAdd = {
+      ...newContact,
+      id,
+      status: "none",
+      lastContact: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      totalJobs: 0,
+      openJobs: 0,
+      totalSpend: 0,
+      notes: "",
+      healthScore: 85,
+      healthScoreTrend: 0,
+      type: [newContact.isB2B ? "customer" : "vendor"],
+      isIndividual: !newContact.isB2B
+    }
+
+    setContacts(prevContacts => [...prevContacts, contactToAdd])
+  }
 
   // Filter contacts based on search query, type, and status
   const filteredContacts = contacts.filter((contact) => {
@@ -475,12 +501,12 @@ export default function ContactsPage() {
               {getDots()}
             </Badge>
           </TooltipTrigger>
-          <TooltipWithGlow className="max-w-[320px]">
-            <div className="flex items-start gap-2">
-              <Sparkles className="h-4 w-4 text-blue-500 mt-0.5 shrink-0" />
+          <TooltipWithGlow>
+            <div className="flex items-start gap-2 w-[300px]">
+              <Sparkles className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
               <div>
-                <span className="font-semibold">AI Insight:</span>
-                <div className="text-sm">{getTooltipContent()}</div>
+                <span className="text-sm font-semibold text-gray-900">AI Insight:</span>
+                <div className="text-sm text-gray-600">{getTooltipContent()}</div>
               </div>
             </div>
           </TooltipWithGlow>
@@ -671,11 +697,33 @@ export default function ContactsPage() {
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>View Details</DropdownMenuItem>
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                    <DropdownMenuContent align="end" className="w-[200px]">
+                      <DropdownMenuItem className="cursor-pointer hover:bg-muted">
+                        <Mail className="h-4 w-4 mr-2" />
+                        Send email
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer hover:bg-muted">
+                        <Phone className="h-4 w-4 mr-2" />
+                        Call
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem>Delete</DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer hover:bg-muted">
+                        <FileText className="h-4 w-4 mr-2" />
+                        View/Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer hover:bg-muted">
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Reassign
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer hover:bg-muted">
+                        <Star className="h-4 w-4 mr-2" />
+                        Mark as VIP
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="cursor-pointer text-red-600 hover:bg-red-100 hover:text-red-600">
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Remove
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </td>
@@ -696,7 +744,7 @@ export default function ContactsPage() {
           viewType === "people" && "font-bold"
         )}
       >
-        people
+        People
       </button>
       <span className="text-muted-foreground">|</span>
       <button
@@ -706,34 +754,19 @@ export default function ContactsPage() {
           viewType === "companies" && "font-bold"
         )}
       >
-        companies
+        Companies
       </button>
     </div>
   )
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex justify-between items-start">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold">Contacts</h1>
-          <p className="text-muted-foreground">Manage customers and vendors</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Upload className="mr-2 h-4 w-4" />
-            Import
-          </Button>
-          <Button variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Add Contact
-          </Button>
-        </div>
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-bold tracking-tight">Contacts</h2>
+        <Button asChild>
+          <Link href="/contacts/new">Add Contact</Link>
+        </Button>
       </div>
-
       <div className="flex flex-col gap-4">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">

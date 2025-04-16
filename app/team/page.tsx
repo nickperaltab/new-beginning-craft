@@ -325,17 +325,17 @@ export default function TeamPage() {
   const pendingTimesheetApprovals = teamMembers.filter((member) => member.timesheet.status === "Pending Approval")
 
   return (
-    <div className="container mx-auto py-6">
+    <div className="flex flex-col gap-6 p-6">
       <div className="flex justify-between items-start mb-6">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold">Team</h1>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold">Team</h1>
           <p className="text-muted-foreground">Manage field crew and subcontractors</p>
-      </div>
+        </div>
         <Button>
           <UserPlus className="mr-2 h-4 w-4" />
           Add Member
-              </Button>
-            </div>
+        </Button>
+      </div>
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col md:flex-row gap-4">
@@ -352,8 +352,8 @@ export default function TeamPage() {
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Member Type" />
-                  </SelectTrigger>
-                  <SelectContent>
+              </SelectTrigger>
+              <SelectContent>
                 <SelectItem value="all">All Members</SelectItem>
                 <SelectItem value="core">Core Team</SelectItem>
                 <SelectItem value="subcontractor">Subcontractors</SelectItem>
@@ -381,123 +381,123 @@ export default function TeamPage() {
                 <SelectItem value="Available">Available</SelectItem>
                 <SelectItem value="On Job">On Job</SelectItem>
                 <SelectItem value="Off Duty">Off Duty</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-      </div>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         <Tabs value={viewMode} onValueChange={setViewMode}>
-        <TabsList>
+          <TabsList>
             <TabsTrigger value="cards">Cards</TabsTrigger>
             <TabsTrigger value="table">Table</TabsTrigger>
-        </TabsList>
+          </TabsList>
           <TabsContent value="cards">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredTeamMembers.map((member) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredTeamMembers.map((member) => (
                 <Card key={member.id} className={cn(
                   member.type === "subcontractor" && "border-orange-200 bg-orange-50/50"
                 )}>
-                          <Link href={`/team/${member.id}`}>
+                  <Link href={`/team/${member.id}`}>
                     <CardHeader>
-                            <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage src={member.image} />
-                          <AvatarFallback>{member.initials}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                          <CardTitle>{member.name}</CardTitle>
-                          <CardDescription>{member.role}</CardDescription>
-                              </div>
-                            </div>
-                      <Badge className={cn(
-                        member.type === "subcontractor" 
-                          ? "bg-orange-500" 
-                          : "bg-blue-500"
-                      )}>
-                        {member.type === "subcontractor" ? "Subcontractor" : "Core Team"}
-                            </Badge>
-                            </div>
-            </CardHeader>
-            <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{member.email}</span>
-                            </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{member.location}</span>
-                            </div>
-                      <div className="flex items-center gap-2">
-                        <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">{member.status}</span>
-                            </div>
-                      <div className="flex flex-wrap gap-1">
-                        {member.skills.map((skill) => (
-                              <Badge
-                            key={skill}
-                                variant="outline"
-                            className={getSkillBadgeColor(skill)}
-                              >
-                                {skill}
-                              </Badge>
-                            ))}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage src={member.image} />
+                            <AvatarFallback>{member.initials}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <CardTitle>{member.name}</CardTitle>
+                            <CardDescription>{member.role}</CardDescription>
                           </div>
                         </div>
-                      </CardContent>
-                              </Link>
-          </Card>
-                  ))}
-                          </div>
-        </TabsContent>
+                        <Badge className={cn(
+                          member.type === "subcontractor" 
+                            ? "bg-orange-500" 
+                            : "bg-blue-500"
+                        )}>
+                          {member.type === "subcontractor" ? "Subcontractor" : "Core Team"}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{member.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{member.location}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{member.status}</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {member.skills.map((skill) => (
+                            <Badge
+                              key={skill}
+                              variant="outline"
+                              className={getSkillBadgeColor(skill)}
+                            >
+                              {skill}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
           <TabsContent value="table">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
+            <Table>
+              <TableHeader>
+                <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Role</TableHead>
                   <TableHead>Type</TableHead>
-                          <TableHead>Status</TableHead>
+                  <TableHead>Status</TableHead>
                   <TableHead>Location</TableHead>
                   <TableHead>Skills</TableHead>
                   <TableHead>Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filteredTeamMembers.map((member) => (
                   <TableRow key={member.id} className={cn(
                     member.type === "subcontractor" && "bg-orange-50/50"
                   )}>
-                            <TableCell>
+                    <TableCell>
                       <Link href={`/team/${member.id}`} className="flex items-center gap-2">
                         <Avatar>
                           <AvatarImage src={member.image} />
                           <AvatarFallback>{member.initials}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                  <div className="font-medium">{member.name}</div>
+                        </Avatar>
+                        <div>
+                          <div className="font-medium">{member.name}</div>
                           <div className="text-sm text-muted-foreground">{member.email}</div>
-                                </div>
-                              </Link>
-                            </TableCell>
+                        </div>
+                      </Link>
+                    </TableCell>
                     <TableCell>{member.role}</TableCell>
-                            <TableCell>
+                    <TableCell>
                       <Badge className={cn(
                         member.type === "subcontractor" 
                           ? "bg-orange-500" 
                           : "bg-blue-500"
                       )}>
                         {member.type === "subcontractor" ? "Subcontractor" : "Core Team"}
-                              </Badge>
-                            </TableCell>
-                              <TableCell>
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
                       <Badge className={getStatusColor(member.status)}>
                         {member.status}
                       </Badge>
-                              </TableCell>
+                    </TableCell>
                     <TableCell>{member.location}</TableCell>
-                              <TableCell>
+                    <TableCell>
                       <div className="flex flex-wrap gap-1">
                         {member.skills.slice(0, 2).map((skill) => (
                           <Badge
@@ -506,21 +506,21 @@ export default function TeamPage() {
                             className={getSkillBadgeColor(skill)}
                           >
                             {skill}
-                                </Badge>
+                          </Badge>
                         ))}
                         {member.skills.length > 2 && (
                           <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">
                             +{member.skills.length - 2} more
                           </Badge>
                         )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
+                      </div>
+                    </TableCell>
+                    <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button variant="ghost" className="h-8 w-8 p-0">
                             <MoreHorizontal className="h-4 w-4" />
-                              </Button>
+                          </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>View Details</DropdownMenuItem>
@@ -529,13 +529,13 @@ export default function TeamPage() {
                           <DropdownMenuItem className="text-red-600">Remove</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-        </TabsContent>
-      </Tabs>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )

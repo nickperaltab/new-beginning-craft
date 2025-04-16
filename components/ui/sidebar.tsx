@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft } from "lucide-react"
+import { PanelLeft, LayoutDashboard, Users, Briefcase, FileText, Calendar, Settings, CreditCard, PieChart, Package, Building2, Warehouse, ClipboardList, Target } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -734,6 +734,34 @@ const SidebarMenuSubButton = React.forwardRef<
   )
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
+
+const navigation = [
+  {
+    name: "Overview",
+    href: "/",
+    icon: LayoutDashboard,
+  },
+  {
+    name: "Activities",
+    icon: ClipboardList,
+    children: [
+      { name: "Calendar", href: "/calendar", icon: Calendar },
+      { name: "Jobs", href: "/jobs", icon: Briefcase },
+      { name: "Estimates", href: "/estimates", icon: FileText },
+    ],
+  },
+  {
+    name: "Opportunities",
+    href: "/opportunities",
+    icon: Target,
+  },
+  {
+    name: "Inventory",
+    href: "/inventory",
+    icon: Package,
+  },
+  // ... rest of the navigation items ...
+]
 
 export {
   Sidebar,

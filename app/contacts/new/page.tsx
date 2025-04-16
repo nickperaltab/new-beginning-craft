@@ -9,313 +9,246 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Save, X } from "lucide-react"
+import { ArrowLeft, Save, X, Star } from "lucide-react"
 import Link from "next/link"
+import { Badge } from "@/components/ui/badge"
 
 export default function NewContactPage() {
-  const [contactType, setContactType] = useState<string[]>(["customer"])
+  const initialState = {
+    fullName: "",
+    email: "",
+    location: "",
+    isB2B: true,
+    phone: "",
+    newTag: "",
+    tags: [] as string[],
+    rating: 0,
+  }
 
-  const handleTypeChange = (type: string) => {
-    if (contactType.includes(type)) {
-      setContactType(contactType.filter((t) => t !== type))
-    } else {
-      setContactType([...contactType, type])
+  const [formData, setFormData] = useState(initialState)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && formData.newTag.trim()) {
+      if (!formData.tags.includes(formData.newTag.trim())) {
+        setFormData(prev => ({
+          ...prev,
+          tags: [...prev.tags, prev.newTag.trim()],
+          newTag: ""
+        }))
+      }
+    }
+  }
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }))
+  }
+
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full name is required"
+    }
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required"
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Invalid email format"
+    }
+    if (!formData.location) {
+      newErrors.location = "Location is required"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = (shouldAddAnother: boolean) => {
+    if (validateForm()) {
+      // Here we would typically make an API call to save the contact
+      console.log("Saving contact:", formData)
+
+      if (shouldAddAnother) {
+        setFormData(initialState)
+        setErrors({})
+      } else {
+        // Navigate back to contacts page
+        window.location.href = "/contacts"
+      }
     }
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Link href="/contacts">
-            <Button variant="outline" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <h1 className="text-2xl font-bold">Add New Contact</h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Link href="/contacts">
-            <Button variant="outline" className="gap-2">
-              <X className="h-4 w-4" />
-              Cancel
-            </Button>
-          </Link>
-          <Button className="gap-2">
-            <Save className="h-4 w-4" />
-            Save Contact
+    <div className="h-full flex flex-col">
+      <div className="flex items-center gap-4 p-4 border-b">
+        <Link href="/contacts">
+          <Button variant="ghost" size="icon" className="h-8 w-8">
+            <ArrowLeft className="h-4 w-4" />
           </Button>
-        </div>
+        </Link>
+        <h1 className="text-xl font-semibold">Add New Contact</h1>
       </div>
 
-      <Tabs defaultValue="details" className="w-full">
-        <TabsList>
-          <TabsTrigger value="details">Basic Details</TabsTrigger>
-          <TabsTrigger value="locations">Locations</TabsTrigger>
-          <TabsTrigger value="additional">Additional Info</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="details" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Contact Details</CardTitle>
-              <CardDescription>Enter the basic information for this contact</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="flex-1 p-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="space-y-8">
+            {/* Required Fields Section */}
+            <div>
+              <h2 className="text-lg font-medium mb-4">Required Information</h2>
+              <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Contact Name/Company</Label>
-                    <Input id="name" placeholder="Enter name or company" />
+                  <div>
+                    <Label htmlFor="type">Type</Label>
+                    <Tabs 
+                      defaultValue="b2b" 
+                      className="w-full mt-2" 
+                      onValueChange={(value) => setFormData(prev => ({ ...prev, isB2B: value === "b2b" }))}
+                    >
+                      <TabsList className="grid w-full grid-cols-2">
+                        <TabsTrigger value="b2b">B2B</TabsTrigger>
+                        <TabsTrigger value="b2c">B2C</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Contact Type</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="customer"
-                          checked={contactType.includes("customer")}
-                          onCheckedChange={() => handleTypeChange("customer")}
-                        />
-                        <Label htmlFor="customer" className="font-normal">
-                          Customer
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="vendor"
-                          checked={contactType.includes("vendor")}
-                          onCheckedChange={() => handleTypeChange("vendor")}
-                        />
-                        <Label htmlFor="vendor" className="font-normal">
-                          Vendor
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="subcontractor"
-                          checked={contactType.includes("subcontractor")}
-                          onCheckedChange={() => handleTypeChange("subcontractor")}
-                        />
-                        <Label htmlFor="subcontractor" className="font-normal">
-                          Subcontractor
-                        </Label>
-                      </div>
-                    </div>
+                  <div>
+                    <Label htmlFor="fullName">
+                      Full Name <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="fullName"
+                      value={formData.fullName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, fullName: e.target.value }))}
+                      className="mt-2"
+                      placeholder="John Doe"
+                    />
+                    {errors.fullName && (
+                      <p className="text-sm text-red-500 mt-1">{errors.fullName}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="email">
+                      Email <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      className="mt-2"
+                      placeholder="john@example.com"
+                    />
+                    {errors.email && (
+                      <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+                    )}
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="contactPerson">Primary Contact Person</Label>
-                    <Input id="contactPerson" placeholder="Enter contact person name" />
+                  <div>
+                    <Label htmlFor="location">
+                      Location <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="location"
+                      value={formData.location}
+                      onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
+                      className="mt-2"
+                      placeholder="City, State"
+                    />
+                    {errors.location && (
+                      <p className="text-sm text-red-500 mt-1">{errors.location}</p>
+                    )}
                   </div>
+                </div>
+              </div>
+            </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="Enter email address" />
-                  </div>
-
-                  <div className="space-y-2">
+            {/* Optional Fields Section */}
+            <div>
+              <h2 className="text-lg font-medium mb-4">Additional Information</h2>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div>
                     <Label htmlFor="phone">Phone</Label>
-                    <Input id="phone" placeholder="Enter phone number" />
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      className="mt-2"
+                      placeholder="+1 (555) 000-0000"
+                    />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="website">Website</Label>
-                    <Input id="website" placeholder="Enter website URL" />
+                  <div>
+                    <Label>Lead Rating</Label>
+                    <div className="flex gap-1 mt-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className={`h-5 w-5 cursor-pointer ${
+                            star <= formData.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+                          }`}
+                          onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Primary Address</Label>
-                    <Input id="address" placeholder="Street address" />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="city">City</Label>
-                      <Input id="city" placeholder="City" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="state">State</Label>
-                      <Input id="state" placeholder="State" />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="zipCode">Zip Code</Label>
-                      <Input id="zipCode" placeholder="Zip code" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="country">Country</Label>
-                      <Input id="country" placeholder="Country" defaultValue="United States" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Address Type</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="billing" defaultChecked />
-                        <Label htmlFor="billing" className="font-normal">
-                          Billing
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="shipping" defaultChecked />
-                        <Label htmlFor="shipping" className="font-normal">
-                          Shipping
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="service" defaultChecked />
-                        <Label htmlFor="service" className="font-normal">
-                          Service
-                        </Label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="notes">Notes</Label>
-                    <Textarea id="notes" placeholder="Enter any additional notes about this contact" />
+                <div>
+                  <Label htmlFor="tags">Tags</Label>
+                  <div className="flex flex-wrap items-center gap-1 p-2 min-h-10 rounded-md border border-input bg-background ring-offset-background mt-2">
+                    {formData.tags.map((tag) => (
+                      <Badge
+                        key={tag}
+                        variant="secondary"
+                        className="cursor-pointer py-0.5 text-xs flex items-center gap-1 h-6"
+                      >
+                        {tag}
+                        <X 
+                          className="h-3 w-3" 
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleRemoveTag(tag)
+                          }}
+                        />
+                      </Badge>
+                    ))}
+                    <input
+                      id="tags"
+                      value={formData.newTag}
+                      onChange={(e) => setFormData(prev => ({ ...prev, newTag: e.target.value }))}
+                      onKeyDown={handleAddTag}
+                      className="flex-1 bg-transparent border-0 outline-none text-sm placeholder:text-muted-foreground min-w-[120px] h-6 p-0 focus:outline-none focus:ring-0"
+                      placeholder="Type and press Enter to add tags"
+                    />
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
+          </div>
 
-        <TabsContent value="locations" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Additional Locations</CardTitle>
-              <CardDescription>Add multiple locations for this contact</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <p>You can add additional locations after creating the contact</p>
-                <p className="text-sm mt-1">The primary address will be saved as the first location</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="additional" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Additional Information</CardTitle>
-              <CardDescription>Enter additional details based on contact type</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {contactType.includes("customer") && (
-                  <div className="space-y-4 border rounded-lg p-4">
-                    <h3 className="font-medium">Customer Information</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="customerType">Customer Type</Label>
-                      <Select>
-                        <SelectTrigger id="customerType">
-                          <SelectValue placeholder="Select customer type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="commercial">Commercial</SelectItem>
-                          <SelectItem value="residential">Residential</SelectItem>
-                          <SelectItem value="industrial">Industrial</SelectItem>
-                          <SelectItem value="government">Government</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="taxExempt">Tax Status</Label>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="taxExempt" />
-                        <Label htmlFor="taxExempt" className="font-normal">
-                          Tax Exempt
-                        </Label>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="taxId">Tax ID (if exempt)</Label>
-                      <Input id="taxId" placeholder="Enter tax ID" />
-                    </div>
-                  </div>
-                )}
-
-                {contactType.includes("vendor") && (
-                  <div className="space-y-4 border rounded-lg p-4">
-                    <h3 className="font-medium">Vendor Information</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="vendorCategory">Vendor Category</Label>
-                      <Select>
-                        <SelectTrigger id="vendorCategory">
-                          <SelectValue placeholder="Select vendor category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="parts">Parts Supplier</SelectItem>
-                          <SelectItem value="equipment">Equipment Supplier</SelectItem>
-                          <SelectItem value="materials">Materials Supplier</SelectItem>
-                          <SelectItem value="services">Service Provider</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="paymentTerms">Payment Terms</Label>
-                      <Select>
-                        <SelectTrigger id="paymentTerms">
-                          <SelectValue placeholder="Select payment terms" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="net15">Net 15</SelectItem>
-                          <SelectItem value="net30">Net 30</SelectItem>
-                          <SelectItem value="net45">Net 45</SelectItem>
-                          <SelectItem value="net60">Net 60</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="vendorNotes">Vendor Notes</Label>
-                      <Textarea id="vendorNotes" placeholder="Enter vendor-specific notes" />
-                    </div>
-                  </div>
-                )}
-
-                {contactType.includes("subcontractor") && (
-                  <div className="space-y-4 border rounded-lg p-4">
-                    <h3 className="font-medium">Subcontractor Information</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="specialty">Specialty</Label>
-                      <Select>
-                        <SelectTrigger id="specialty">
-                          <SelectValue placeholder="Select specialty" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="plumbing">Plumbing</SelectItem>
-                          <SelectItem value="electrical">Electrical</SelectItem>
-                          <SelectItem value="hvac">HVAC</SelectItem>
-                          <SelectItem value="carpentry">Carpentry</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="insuranceInfo">Insurance Information</Label>
-                      <Textarea id="insuranceInfo" placeholder="Enter insurance details" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="rateInfo">Rate Information</Label>
-                      <Textarea id="rateInfo" placeholder="Enter rate details" />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <div className="flex justify-between mt-8 pt-6 border-t">
+            <Button variant="ghost" asChild>
+              <Link href="/contacts">Cancel</Link>
+            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => handleSubmit(true)}>
+                Save & Add Another
+              </Button>
+              <Button onClick={() => handleSubmit(false)}>
+                Save & Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
