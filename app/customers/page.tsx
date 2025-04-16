@@ -51,12 +51,14 @@ import {
 } from "@/components/ui/tooltip"
 import { Progress } from "@/components/ui/progress"
 import { TooltipWithGlow } from "../components/ui/tooltip-with-glow"
+import { AddCustomerModal } from "../components/customers/add-customer-modal"
 
 export default function CustomersPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedStatus, setSelectedStatus] = useState("all")
   const [selectedLocation, setSelectedLocation] = useState("all")
   const [viewType, setViewType] = useState<"customers" | "companies">("customers")
+  const [showAddModal, setShowAddModal] = useState(false)
   const [customers] = useState([
     {
       id: "cust-001",
@@ -959,12 +961,12 @@ export default function CustomersPage() {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Customers</h2>
-        <Button asChild>
-          <Link href="/customers/new">
-            <Plus className="mr-2 h-4 w-4" />
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
             Add Customer
-          </Link>
-        </Button>
+          </Button>
+        </div>
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col md:flex-row gap-4">
@@ -1003,6 +1005,9 @@ export default function CustomersPage() {
             </Select>
             <Button variant="outline" size="icon">
               <Filter className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" className="rounded-full opacity-50 cursor-not-allowed">
+              <Plus className="h-4 w-4" />
             </Button>
             <Button variant="outline" size="icon">
               <Settings className="h-4 w-4" />
@@ -1045,6 +1050,16 @@ export default function CustomersPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      <AddCustomerModal 
+        open={showAddModal} 
+        onOpenChange={setShowAddModal}
+        onSubmit={async (values, createAnother) => {
+          // Here you would typically make an API call to create the customer
+          console.log('Creating customer:', values)
+          // For now, we'll just log the values
+          return Promise.resolve()
+        }}
+      />
     </div>
   )
 } 

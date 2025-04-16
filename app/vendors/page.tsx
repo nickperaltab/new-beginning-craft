@@ -47,6 +47,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { AddVendorModal } from "@/app/components/vendors/add-vendor-modal"
+import * as z from "zod"
 
 export default function VendorsPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -306,6 +308,8 @@ export default function VendorsPage() {
       tags: ["IT", "Technology"]
     }
   ])
+
+  const [showAddModal, setShowAddModal] = useState(false)
 
   // Filter vendors based on search query
   const filteredVendors = vendors.filter((vendor) => {
@@ -607,11 +611,9 @@ export default function VendorsPage() {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Vendors</h2>
-        <Button asChild>
-          <Link href="/vendors/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Vendor
-          </Link>
+        <Button onClick={() => setShowAddModal(true)}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Vendor
         </Button>
       </div>
       <div className="flex flex-col gap-4">
@@ -681,6 +683,17 @@ export default function VendorsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <AddVendorModal 
+        open={showAddModal} 
+        onOpenChange={setShowAddModal}
+        onSubmit={async (values: any, createAnother: boolean) => {
+          // Here you would typically make an API call to create the vendor
+          console.log('Creating vendor:', values)
+          // For now, we'll just log the values
+          return Promise.resolve()
+        }}
+      />
     </div>
   )
 } 
