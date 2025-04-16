@@ -27,22 +27,22 @@ export default function Dashboard() {
               You have several important tasks that need your attention today
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              <Button variant="secondary" className="justify-start gap-2 py-3 group">
+              <Button variant="outline" className="justify-start gap-2 py-3 group bg-white hover:bg-white/90">
                 <FileText className="h-4 w-4 text-blue-500" />
                 <span className="flex-1 text-left">Send 3 invoice reminders</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
               </Button>
-              <Button variant="secondary" className="justify-start gap-2 py-3 group">
+              <Button variant="outline" className="justify-start gap-2 py-3 group bg-white hover:bg-white/90">
                 <Mail className="h-4 w-4 text-orange-500" />
                 <span className="flex-1 text-left">Follow up with 8 customers</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
               </Button>
-              <Button variant="secondary" className="justify-start gap-2 py-3 group">
+              <Button variant="outline" className="justify-start gap-2 py-3 group bg-white hover:bg-white/90">
                 <UserPlus className="h-4 w-4 text-blue-500" />
                 <span className="flex-1 text-left">Contact 3 post-meeting customers</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
               </Button>
-              <Button variant="secondary" className="justify-start gap-2 py-3 group">
+              <Button variant="outline" className="justify-start gap-2 py-3 group bg-white hover:bg-white/90">
                 <Clock className="h-4 w-4 text-purple-500" />
                 <span className="flex-1 text-left">View 4 overdue tasks</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />

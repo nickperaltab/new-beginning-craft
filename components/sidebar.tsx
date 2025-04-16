@@ -33,9 +33,11 @@ export function useSidebar() {
 
 const navItems = [
   { name: "Home", href: "/", icon: Home },
-  { name: "Contacts", href: "/contacts", icon: User },
+  { name: "Customers", href: "/customers", icon: Users },
   { name: "Activities", href: "/activities", icon: ListChecks },
   { name: "Opportunities", href: "/opportunities", icon: BarChart2 },
+  { separator: true },
+  { name: "Vendors", href: "/vendors", icon: Store },
   { name: "Inventory", href: "/items", icon: Package },
   { separator: true },
   { name: "Jobs", href: "/jobs", icon: Layers },

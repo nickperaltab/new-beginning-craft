@@ -596,13 +596,11 @@ export default function ContactsPage() {
               <th className="py-3 px-4 text-left font-medium">
                 {viewType === "people" ? "Name" : "Company"}
               </th>
-              {viewType === "people" && (
-                <th className="py-3 px-4 text-left font-medium">Type</th>
-              )}
               <th className="py-3 px-4 text-left font-medium">
                 {viewType === "people" ? "Contact" : "Main Contact"}
               </th>
               <th className="py-3 px-4 text-left font-medium">Location</th>
+              <th className="py-3 px-4 text-left font-medium">Tags</th>
               <th className="py-3 px-4 text-left font-medium">Priority</th>
               <th className="py-3 px-4 text-left font-medium">Health Score</th>
               <th className="py-3 px-4 text-left font-medium">Actions</th>
@@ -660,15 +658,6 @@ export default function ContactsPage() {
                     </div>
                   </div>
                 </td>
-                {viewType === "people" && (
-                  <td className="py-3 px-4">
-                    <Badge variant="outline" className={cn(
-                      "font-medium bg-white text-gray-500 border-gray-200",
-                    )}>
-                      {contact.isIndividual ? "B2C" : "B2B"}
-                    </Badge>
-                  </td>
-                )}
                 <td className="py-3 px-4">
                   {viewType === "people" ? (
                     <>
@@ -682,6 +671,55 @@ export default function ContactsPage() {
                 <td className="py-3 px-4">
                   <div className="text-sm">
                     {contact.city}, {contact.state}
+                  </div>
+                </td>
+                <td className="py-3 px-4">
+                  <div className="flex flex-wrap gap-2">
+                    {contact.name === "Acme Corp" && (
+                      <Badge variant="outline" className="font-medium bg-white text-gray-500 border-gray-200">
+                        Enterprise
+                      </Badge>
+                    )}
+                    {contact.name === "TechSolutions Inc" && (
+                      <Badge variant="outline" className="font-medium bg-white text-gray-500 border-gray-200">
+                        SaaS
+                      </Badge>
+                    )}
+                    {contact.name === "Riverside Apartments" && (
+                      <Badge variant="outline" className="font-medium bg-white text-gray-500 border-gray-200">
+                        Real Estate
+                      </Badge>
+                    )}
+                    {contact.name === "HVAC Supplies Inc" && (
+                      <Badge variant="outline" className="font-medium bg-white text-gray-500 border-gray-200">
+                        Manufacturing
+                      </Badge>
+                    )}
+                    {contact.name === "ElectroParts Co" && (
+                      <Badge variant="outline" className="font-medium bg-white text-gray-500 border-gray-200">
+                        Wholesale
+                      </Badge>
+                    )}
+                    {contact.name === "City Hospital" && (
+                      <Badge variant="outline" className="font-medium bg-white text-gray-500 border-gray-200">
+                        Healthcare
+                      </Badge>
+                    )}
+                    {contact.name === "Downtown Office Tower" && (
+                      <Badge variant="outline" className="font-medium bg-white text-gray-500 border-gray-200">
+                        Commercial
+                      </Badge>
+                    )}
+                    {contact.name === "Old Parts Ltd" && (
+                      <Badge variant="outline" className="font-medium bg-white text-gray-500 border-gray-200">
+                        Distributor
+                      </Badge>
+                    )}
+                    {contact.isIndividual && (
+                      <Badge variant="outline" className="font-medium bg-white text-gray-500 border-gray-200">
+                        Residential
+                      </Badge>
+                    )}
                   </div>
                 </td>
                 <td className="py-3 px-4">
@@ -764,7 +802,10 @@ export default function ContactsPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Contacts</h2>
         <Button asChild>
-          <Link href="/contacts/new">Add Contact</Link>
+          <Link href="/contacts/new">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Contact
+          </Link>
         </Button>
       </div>
       <div className="flex flex-col gap-4">

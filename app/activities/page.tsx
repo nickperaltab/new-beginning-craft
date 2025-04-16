@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Clock, AlertCircle, Calendar as CalendarIcon, User, CheckCircle2, Check, Bell, LayoutGrid, List, Sparkles } from "lucide-react"
+import { Clock, AlertCircle, Calendar as CalendarIcon, User, CheckCircle2, Check, Bell, LayoutGrid, List, Sparkles, Plus } from "lucide-react"
 import { addDays, format, isSameMonth, isToday, startOfMonth } from "date-fns"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -190,7 +190,13 @@ export default function ActivitiesPage() {
       <style>{styles}</style>
       <div className="flex flex-col gap-6 p-6">
         <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold">Activities</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-3xl font-bold">Activities</h1>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add task/event
+            </Button>
+          </div>
           <p className="text-muted-foreground">Manage your tasks and events</p>
         </div>
 
