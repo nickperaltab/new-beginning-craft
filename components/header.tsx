@@ -17,27 +17,27 @@ export function Header() {
   const notifications = [
     {
       id: 1,
-      title: "URGENT: Invoice Overdue",
-      description: "Invoice #1234 is 15 days overdue - $3,250.00",
+      title: "Overdue Tasks",
+      description: "4 tasks are overdue and require immediate attention",
       time: "2 min ago",
       priority: "high",
-      type: "payment"
+      type: "task"
     },
     {
       id: 2,
-      title: "Payment Declined",
-      description: "Payment for Invoice #2345 was declined - $1,875.50",
+      title: "High Priority Customers",
+      description: "12 customers require urgent attention",
       time: "1 hour ago",
       priority: "medium",
-      type: "payment"
+      type: "customer"
     },
     {
       id: 3,
-      title: "Payment Received",
-      description: "Payment of $4,250.00 received for Invoice #5678",
+      title: "Meeting with Sarah Miller",
+      description: "Scheduled for tomorrow at 10:00 AM",
       time: "30 min ago",
-      priority: "success",
-      type: "payment"
+      priority: "normal",
+      type: "meeting"
     },
     {
       id: 4,
@@ -93,9 +93,9 @@ export function Header() {
             {notifications.map((notification) => {
               // Determine background color based on priority
               const bgColor =
-                notification.priority === "high" ? "bg-red-50" :
-                notification.priority === "medium" ? "bg-yellow-50" :
-                notification.priority === "success" ? "bg-green-50" : "";
+                notification.priority === "high" ? "bg-red-50 hover:bg-red-100" :
+                notification.priority === "medium" ? "bg-yellow-50 hover:bg-yellow-100" :
+                notification.priority === "success" ? "bg-green-50 hover:bg-green-100" : "hover:bg-muted/50";
 
               // Determine text color based on priority
               const titleColor =
@@ -104,31 +104,24 @@ export function Header() {
                 notification.priority === "success" ? "text-green-600 font-semibold" : "font-medium";
 
               return (
-                <DropdownMenuItem key={notification.id} className={`cursor-pointer py-3 px-4 ${bgColor}`}>
-                  <div className="flex flex-col space-y-1 w-full">
+                <DropdownMenuItem key={notification.id} className={`cursor-pointer py-5 px-4 ${bgColor}`}>
+                  <div className="flex flex-col space-y-1.5 w-full">
                     <div className="flex justify-between items-center">
                       <p className={`text-sm ${titleColor}`}>{notification.title}</p>
                       <span className="text-xs text-muted-foreground">{notification.time}</span>
                     </div>
                     <p className="text-xs text-muted-foreground">{notification.description}</p>
-                    {notification.priority === "high" && notification.type === "payment" && (
-                      <div className="mt-1 flex items-center gap-2">
+                    {notification.priority === "high" && notification.type === "task" && (
+                      <div style={{ marginTop: '12px' }} className="flex items-center gap-2">
                         <Button size="sm" className="h-7 px-3 py-1 text-xs bg-red-500 hover:bg-red-600">
-                          View Invoice
+                          View Tasks
                         </Button>
                       </div>
                     )}
-                    {notification.priority === "medium" && notification.type === "payment" && (
-                      <div className="mt-1 flex items-center gap-2">
+                    {notification.priority === "medium" && notification.type === "customer" && (
+                      <div style={{ marginTop: '12px' }} className="flex items-center gap-2">
                         <Button size="sm" className="h-7 px-3 py-1 text-xs bg-yellow-500 hover:bg-yellow-600 text-white">
-                          View Payment
-                        </Button>
-                      </div>
-                    )}
-                    {notification.priority === "success" && notification.type === "payment" && (
-                      <div className="mt-1 flex items-center gap-2">
-                        <Button size="sm" className="h-7 px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white">
-                          View Receipt
+                          View Customers
                         </Button>
                       </div>
                     )}
