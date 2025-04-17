@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, X, CornerDownLeft } from "lucide-react"
 import {
@@ -61,14 +61,24 @@ export function AddVendorModal({ open, onOpenChange, onSubmit }: AddVendorModalP
   const handleTagInput = (e: React.KeyboardEvent | React.FocusEvent) => {
     const trimmedTag = currentTag.trim()
     if (trimmedTag && !tags.includes(trimmedTag) && tags.length < 5) {
-      setTags([...tags, trimmedTag])
+      const newTags = [...tags, trimmedTag]
+      setTags(newTags)
       setCurrentTag("")
+      form.setValue('tags', newTags)
     }
   }
 
   const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter((tag) => tag !== tagToRemove))
+    const newTags = tags.filter((tag) => tag !== tagToRemove)
+    setTags(newTags)
+    form.setValue('tags', newTags)
   }
+
+  useEffect(() => {
+    // Initialize tags from form values
+    const formTags = form.getValues('tags') || []
+    setTags(formTags)
+  }, [form])
 
   const handleSubmit = async (values: z.infer<typeof formSchema>, createAnother: boolean = false) => {
     try {
