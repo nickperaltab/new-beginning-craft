@@ -8,6 +8,7 @@ import { Star } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 interface AddContactModalProps {
   isOpen: boolean
@@ -20,6 +21,7 @@ interface AddContactModalProps {
     location: string
     tags: string[]
     rating: number
+    assignedTo: string
   }) => void
 }
 
@@ -33,10 +35,13 @@ export function AddContactModal({ isOpen, onClose, onAddContact }: AddContactMod
     newTag: "",
     tags: [] as string[],
     rating: 0,
+    assignedTo: "",
+    company: "",
   }
 
   const [formData, setFormData] = useState(initialState)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [contactType, setContactType] = useState<"customer" | "company">("customer")
 
   const resetForm = () => {
     setFormData(initialState)
@@ -90,7 +95,8 @@ export function AddContactModal({ isOpen, onClose, onAddContact }: AddContactMod
         isB2B: formData.isB2B,
         location: formData.location,
         tags: formData.tags,
-        rating: formData.rating
+        rating: formData.rating,
+        assignedTo: formData.assignedTo
       }
 
       onAddContact(contactData)
@@ -110,18 +116,27 @@ export function AddContactModal({ isOpen, onClose, onAddContact }: AddContactMod
           <DialogTitle>Add New Contact</DialogTitle>
         </DialogHeader>
         <div className="grid gap-6 py-4">
-          <div className="grid grid-cols-4 gap-4">
-            <div className="col-span-1" />
-            <div className="col-span-3">
-              <Label htmlFor="type">Type</Label>
-              <Tabs defaultValue="b2b" className="w-[400px] mt-2" onValueChange={(value) => setFormData(prev => ({ ...prev, isB2B: value === "b2b" }))}>
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="b2b">B2B</TabsTrigger>
-                  <TabsTrigger value="b2c">B2C</TabsTrigger>
-                </TabsList>
-              </Tabs>
+          <Tabs defaultValue="customer" className="w-full" onValueChange={(value) => setContactType(value as "customer" | "company")}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="customer">Customer</TabsTrigger>
+              <TabsTrigger value="company">Company</TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          {contactType === "customer" && (
+            <div className="grid grid-cols-4 gap-4">
+              <div className="col-span-1" />
+              <div className="col-span-3">
+                <Label htmlFor="type">Type</Label>
+                <Tabs defaultValue="b2b" className="w-[400px] mt-2" onValueChange={(value) => setFormData(prev => ({ ...prev, isB2B: value === "b2b" }))}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="b2b">B2B</TabsTrigger>
+                    <TabsTrigger value="b2c">B2C</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="grid grid-cols-4 gap-4">
             <div className="col-span-1" />
@@ -177,6 +192,22 @@ export function AddContactModal({ isOpen, onClose, onAddContact }: AddContactMod
             </div>
           </div>
 
+          {contactType === "customer" && (
+            <div className="grid grid-cols-4 gap-4">
+              <div className="col-span-1" />
+              <div className="col-span-3">
+                <Label htmlFor="company">Company</Label>
+                <Input
+                  id="company"
+                  value={formData.company}
+                  onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
+                  className="mt-2"
+                  placeholder="Company name"
+                />
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-4 gap-4">
             <div className="col-span-1" />
             <div className="col-span-3">
@@ -193,6 +224,28 @@ export function AddContactModal({ isOpen, onClose, onAddContact }: AddContactMod
               {errors.location && (
                 <p className="text-sm text-red-500 mt-1">{errors.location}</p>
               )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 gap-4">
+            <div className="col-span-1" />
+            <div className="col-span-3">
+              <Label htmlFor="assignedTo">Assigned To</Label>
+              <Select
+                value={formData.assignedTo}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, assignedTo: value }))}
+              >
+                <SelectTrigger className="mt-2">
+                  <SelectValue placeholder="Select team member" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="john.smith">John Smith</SelectItem>
+                  <SelectItem value="sarah.wilson">Sarah Wilson</SelectItem>
+                  <SelectItem value="michael.brown">Michael Brown</SelectItem>
+                  <SelectItem value="emily.davis">Emily Davis</SelectItem>
+                  <SelectItem value="david.miller">David Miller</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

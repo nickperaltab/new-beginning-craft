@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { AddOpportunityModal } from "@/app/components/opportunities/add-opportunity-modal"
 
 // Define the pipeline stages
 const pipelineStages = [
@@ -83,6 +84,7 @@ interface Opportunity {
 
 export default function OpportunitiesPage() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(initialOpportunities)
+  const [showAddModal, setShowAddModal] = useState(false)
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return
@@ -151,7 +153,7 @@ export default function OpportunitiesPage() {
           <h1 className="text-3xl font-bold">Opportunities</h1>
           <p className="text-muted-foreground">Manage and track your sales pipeline</p>
         </div>
-        <Button>
+        <Button onClick={() => setShowAddModal(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Add Opportunity
         </Button>
@@ -240,6 +242,17 @@ export default function OpportunitiesPage() {
           </DragDropContext>
         </div>
       </div>
+
+      <AddOpportunityModal 
+        open={showAddModal}
+        onOpenChange={setShowAddModal}
+        onSubmit={async (values, createAnother) => {
+          // Here you would typically make an API call to create the opportunity
+          console.log('Creating opportunity:', values)
+          // For now, we'll just log the values
+          return Promise.resolve()
+        }}
+      />
     </div>
   )
 } 

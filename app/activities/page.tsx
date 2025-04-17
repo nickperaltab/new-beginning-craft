@@ -12,6 +12,7 @@ import { addDays, format, isSameMonth, isToday, startOfMonth } from "date-fns"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
+import { AddTaskModal } from "@/app/components/activities/add-task-modal"
 
 const styles = `
   @keyframes borderAnimation {
@@ -163,6 +164,7 @@ const priorityTooltips = {
 export default function ActivitiesPage() {
   const [date, setDate] = useState<Date>(new Date())
   const [view, setView] = useState<'calendar' | 'list'>('calendar')
+  const [showAddModal, setShowAddModal] = useState(false)
 
   // Combine and sort tasks and events for list view
   const allActivities = [
@@ -192,7 +194,7 @@ export default function ActivitiesPage() {
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Activities</h1>
-            <Button>
+            <Button onClick={() => setShowAddModal(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Add task/event
             </Button>
@@ -540,6 +542,17 @@ export default function ActivitiesPage() {
             </Card>
           </div>
         </div>
+
+        <AddTaskModal 
+          open={showAddModal}
+          onOpenChange={setShowAddModal}
+          onSubmit={async (values, createAnother) => {
+            // Here you would typically make an API call to create the task/event
+            console.log('Creating task/event:', values)
+            // For now, we'll just log the values
+            return Promise.resolve()
+          }}
+        />
       </div>
     </>
   )
