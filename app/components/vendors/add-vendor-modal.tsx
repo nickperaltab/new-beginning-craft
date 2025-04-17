@@ -23,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -88,7 +89,7 @@ export function AddVendorModal({ open, onOpenChange, onSubmit }: AddVendorModalP
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="sm:max-w-[600px] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:slide-in-from-top-2 data-[state=closed]:slide-out-to-top-2">
         <DialogHeader>
           <div className="flex items-center gap-4">
             <Button 
@@ -96,7 +97,7 @@ export function AddVendorModal({ open, onOpenChange, onSubmit }: AddVendorModalP
               variant="ghost" 
               size="icon"
               onClick={() => onOpenChange(false)}
-              className="h-8 w-8"
+              className="h-8 w-8 transition-colors hover:bg-muted/50"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -187,23 +188,20 @@ export function AddVendorModal({ open, onOpenChange, onSubmit }: AddVendorModalP
             </div>
 
             <div className="space-y-1.5">
-              <FormLabel>Tags</FormLabel>
+              <Label>Tags</Label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-3 flex items-center gap-1.5 max-w-[calc(100%-24px)] overflow-x-auto">
+                <div className="absolute inset-0 flex flex-wrap gap-1.5 p-2">
                   {tags.map((tag) => (
-                    <Badge 
-                      key={tag} 
-                      variant="secondary" 
-                      className="h-6 text-xs py-0.5 px-2 flex items-center gap-0.5 shrink-0 bg-blue-100 hover:bg-blue-200 transition-colors font-normal"
+                    <Badge
+                      key={tag}
+                      variant="secondary"
+                      className="gap-1.5"
                     >
                       {tag}
-                      <button
-                        type="button"
+                      <X
+                        className="h-3 w-3 cursor-pointer"
                         onClick={() => removeTag(tag)}
-                        className="hover:text-destructive rounded-full p-0.5"
-                      >
-                        <X className="h-2.5 w-2.5" />
-                      </button>
+                      />
                     </Badge>
                   ))}
                   <div className="flex items-center gap-1">
@@ -255,7 +253,13 @@ export function AddVendorModal({ open, onOpenChange, onSubmit }: AddVendorModalP
             />
 
             <div className="flex items-center justify-end gap-4 pt-2">
-              <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+              <Button 
+                type="button" 
+                variant="ghost" 
+                onClick={() => onOpenChange(false)} 
+                disabled={isSubmitting}
+                className="transition-colors hover:bg-muted/50"
+              >
                 Cancel
               </Button>
               <Button 
@@ -263,10 +267,15 @@ export function AddVendorModal({ open, onOpenChange, onSubmit }: AddVendorModalP
                 variant="outline"
                 onClick={() => handleSubmit(form.getValues(), true)}
                 disabled={isSubmitting}
+                className="transition-colors hover:bg-muted/50"
               >
                 {isSubmitting ? "Saving..." : "Save & Create Another"}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                className="transition-colors hover:bg-primary/90"
+              >
                 {isSubmitting ? "Saving..." : "Save & Close"}
               </Button>
             </div>

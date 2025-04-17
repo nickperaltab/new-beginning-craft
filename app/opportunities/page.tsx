@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { AddOpportunityModal } from "@/components/opportunities/add-opportunity-modal"
+import { toast } from "@/components/ui/use-toast"
 
 // Define the pipeline stages
 const pipelineStages = [
@@ -20,6 +22,19 @@ const pipelineStages = [
   { id: "proposal", name: "Proposal", color: "bg-yellow-50" },
   { id: "negotiation", name: "Negotiation", color: "bg-orange-50" },
   { id: "closed", name: "Closed Won", color: "bg-green-50" },
+]
+
+// Mock data for dropdowns
+const mockCustomers = [
+  { id: "1", name: "Acme Corp" },
+  { id: "2", name: "TechSolutions Inc" },
+  { id: "3", name: "City Hospital" },
+]
+
+const mockTeamMembers = [
+  { id: "1", name: "John Smith" },
+  { id: "2", name: "Jane Doe" },
+  { id: "3", name: "Bob Johnson" },
 ]
 
 // Mock opportunities data
@@ -83,6 +98,7 @@ interface Opportunity {
 
 export default function OpportunitiesPage() {
   const [opportunities, setOpportunities] = useState<Opportunity[]>(initialOpportunities)
+  const [showAddModal, setShowAddModal] = useState(false)
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return
@@ -126,6 +142,35 @@ export default function OpportunitiesPage() {
     setOpportunities(newOpportunities)
   }
 
+  const handleAddOpportunity = async (values: any, createAnother: boolean) => {
+    try {
+      // In a real app, you would make an API call here
+      const newOpportunity = {
+        id: `opp-${opportunities.length + 1}`,
+        title: values.name,
+        company: mockCustomers.find(c => c.id === values.customer)?.name || "",
+        value: parseFloat(values.amount) || 0,
+        expectedCloseDate: values.expectedCloseDate.toISOString(),
+        stage: values.stage || "lead",
+        probability: parseInt(values.probability) || 0,
+      }
+      
+      setOpportunities([...opportunities, newOpportunity])
+      
+      toast({
+        title: "Success",
+        description: "Opportunity created successfully",
+      })
+    } catch (error) {
+      console.error("Error creating opportunity:", error)
+      toast({
+        title: "Error",
+        description: "Failed to create opportunity",
+        variant: "destructive",
+      })
+    }
+  }
+
   // Format currency
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -151,7 +196,7 @@ export default function OpportunitiesPage() {
           <h1 className="text-3xl font-bold">Opportunities</h1>
           <p className="text-muted-foreground">Manage and track your sales pipeline</p>
         </div>
-        <Button>
+        <Button onClick={() => setShowAddModal(true)}>
           <Plus className="mr-2 h-4 w-4" />
           Add Opportunity
         </Button>
@@ -240,6 +285,16 @@ export default function OpportunitiesPage() {
           </DragDropContext>
         </div>
       </div>
+
+      <AddOpportunityModal
+        open={showAddModal}
+        onOpenChange={setShowAddModal}
+        onSubmit={handleAddOpportunity}
+        customers={mockCustomers}
+        pipelines={[{ id: "default", name: "Default Pipeline" }]}
+        stages={pipelineStages}
+        teamMembers={mockTeamMembers}
+      />
     </div>
   )
 } 
