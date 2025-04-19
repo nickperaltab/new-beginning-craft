@@ -324,7 +324,7 @@ export default function VendorsPage() {
   // Format currency in thousands
   const formatThousands = (value: number) => {
     const thousands = value / 1000
-    return `$${thousands.toFixed(1)}k`
+    return `${thousands.toFixed(1)}k`
   }
 
   // Render vendor list
