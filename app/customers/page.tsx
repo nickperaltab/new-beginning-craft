@@ -625,7 +625,13 @@ export default function CustomersPage() {
               customers.map((customer) => (
                 <tr 
                   key={customer.id} 
-                  className="border-b hover:bg-muted/50 cursor-pointer"
+                  className="border-b hover:bg-muted/50"
+                  onClick={(e) => {
+                    // Don't navigate if clicking on the dropdown menu
+                    if ((e.target as HTMLElement).closest('.dropdown-trigger')) return;
+                    window.location.href = '/existing-contact';
+                  }}
+                  style={{ cursor: 'default' }}
                 >
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-4">
@@ -781,7 +787,13 @@ export default function CustomersPage() {
               getUniqueCompanies().map((company) => (
                 <tr 
                   key={company.id} 
-                  className="border-b hover:bg-muted/50 cursor-pointer"
+                  className="border-b hover:bg-muted/50"
+                  onClick={(e) => {
+                    // Don't navigate if clicking on the dropdown menu
+                    if ((e.target as HTMLElement).closest('.dropdown-trigger')) return;
+                    window.location.href = '/existing-company';
+                  }}
+                  style={{ cursor: 'default' }}
                 >
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-4">
