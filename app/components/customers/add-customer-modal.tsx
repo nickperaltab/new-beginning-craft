@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select"
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, X, CornerDownLeft } from "lucide-react"
+import { ArrowLeft, X, CornerDownLeft, Plus } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -53,6 +53,14 @@ export function AddCustomerModal({ open, onOpenChange, onSubmit }: AddCustomerMo
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [currentTag, setCurrentTag] = useState("")
   const [tags, setTags] = useState<string[]>([])
+  const [showMoreDetails, setShowMoreDetails] = useState(false)
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      setShowMoreDetails(false)
+    }
+    onOpenChange(open)
+  }
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -97,7 +105,7 @@ export function AddCustomerModal({ open, onOpenChange, onSubmit }: AddCustomerMo
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[600px] animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:slide-in-from-top-2 data-[state=closed]:slide-out-to-top-2">
         <DialogHeader>
           <div className="flex items-center gap-4">
@@ -207,86 +215,100 @@ export function AddCustomerModal({ open, onOpenChange, onSubmit }: AddCustomerMo
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location</FormLabel>
-                  <FormControl>
-                    <Input placeholder="City, Country" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="space-y-1.5">
-              <Label>Tags</Label>
-              <div className="relative">
-                <div className="absolute inset-0 flex flex-wrap gap-1.5 p-2">
-                  {tags.map((tag) => (
-                    <Badge
-                      key={tag}
-                      variant="secondary"
-                      className="gap-1.5"
-                    >
-                      {tag}
-                      <X
-                        className="h-3 w-3 cursor-pointer"
-                        onClick={() => removeTag(tag)}
-                      />
-                    </Badge>
-                  ))}
-                  <div className="flex items-center gap-1">
-                    <Input
-                      value={currentTag}
-                      onChange={(e) => setCurrentTag(e.target.value)}
-                      placeholder={tags.length >= 5 ? "Maximum tags reached" : "Type and press Enter"}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault()
-                          handleTagInput(e)
-                        }
+            {!showMoreDetails ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full mb-4 justify-start p-0 h-auto font-medium hover:bg-transparent"
+                onClick={() => setShowMoreDetails(true)}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add more details
+              </Button>
+            ) : (
+              <>
+                <div className="space-y-1.5">
+                  <Label>Tags</Label>
+                  <div className="relative">
+                    <div className="absolute inset-0 flex flex-wrap gap-1.5 p-2">
+                      {tags.map((tag) => (
+                        <Badge
+                          key={tag}
+                          variant="secondary"
+                          className="gap-1.5"
+                        >
+                          {tag}
+                          <X
+                            className="h-3 w-3 cursor-pointer"
+                            onClick={() => removeTag(tag)}
+                          />
+                        </Badge>
+                      ))}
+                      <div className="flex items-center gap-1">
+                        <Input
+                          value={currentTag}
+                          onChange={(e) => setCurrentTag(e.target.value)}
+                          placeholder={tags.length >= 5 ? "Maximum tags reached" : "Type and press Enter"}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              handleTagInput(e)
+                            }
+                          }}
+                          onBlur={handleTagInput}
+                          disabled={tags.length >= 5}
+                          className="border-0 bg-transparent p-0 h-5 text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 w-[160px]"
+                        />
+                        {tags.length < 5 && currentTag.length === 0 && (
+                          <CornerDownLeft className="h-3.5 w-3.5 text-muted-foreground absolute right-2" />
+                        )}
+                      </div>
+                    </div>
+                    <div 
+                      className="w-full h-9 border rounded-md cursor-text" 
+                      onClick={(e) => {
+                        const input = e.currentTarget.querySelector('input')
+                        if (input) input.focus()
                       }}
-                      onBlur={handleTagInput}
-                      disabled={tags.length >= 5}
-                      className="border-0 bg-transparent p-0 h-5 text-sm placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 w-[160px]"
                     />
-                    {tags.length < 5 && currentTag.length === 0 && (
-                      <CornerDownLeft className="h-3.5 w-3.5 text-muted-foreground absolute right-2" />
-                    )}
                   </div>
                 </div>
-                <div 
-                  className="w-full h-9 border rounded-md cursor-text" 
-                  onClick={(e) => {
-                    const input = e.currentTarget.querySelector('input')
-                    if (input) input.focus()
-                  }}
+
+                <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="City, Country" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-            </div>
 
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Add any additional notes about the customer"
-                      className="resize-none"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Notes</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Add any additional notes about the customer"
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
 
-            <div className="flex items-center justify-end gap-4 pt-2">
+            <div className="flex items-center justify-end gap-2 pt-2">
               <Button 
                 type="button" 
                 variant="ghost" 
@@ -303,14 +325,14 @@ export function AddCustomerModal({ open, onOpenChange, onSubmit }: AddCustomerMo
                 disabled={isSubmitting}
                 className="transition-colors hover:bg-muted/50"
               >
-                {isSubmitting ? "Saving..." : "Save & Create Another"}
+                {isSubmitting ? "Creating..." : "Create & New"}
               </Button>
               <Button 
                 type="submit" 
                 disabled={isSubmitting}
                 className="transition-colors hover:bg-primary/90"
               >
-                {isSubmitting ? "Saving..." : "Save & Close"}
+                {isSubmitting ? "Creating..." : "Create"}
               </Button>
             </div>
           </form>

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CalendarIcon, Loader2 } from "lucide-react"
+import { CalendarIcon, Loader2, CheckCircle2, Phone, Mail, Users } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "@/components/ui/use-toast"
 
@@ -34,7 +34,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Calendar } from "@/components/ui/calendar"
 import {
   Popover,
@@ -44,20 +43,16 @@ import {
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title must be less than 100 characters"),
-  type: z.enum(["task", "event"], {
+  type: z.enum(["task", "meeting", "call", "email"], {
     required_error: "Please select an activity type",
   }),
   description: z.string().optional(),
   dueDate: z.date({
-    required_error: "Please select a due date",
     invalid_type_error: "Invalid date format",
-  }),
+  }).optional(),
   contact: z.string().optional(),
   assignedTo: z.string({
     required_error: "Please select a team member",
-  }),
-  priority: z.enum(["low", "medium", "high"], {
-    required_error: "Please select a priority level",
   }),
 })
 
@@ -97,7 +92,7 @@ export function AddActivityModal({
       title: "",
       type: "task",
       description: "",
-      priority: "medium",
+      assignedTo: teamMembers.length > 0 ? teamMembers[Math.floor(Math.random() * teamMembers.length)].id : undefined,
     },
   })
 
@@ -121,6 +116,14 @@ export function AddActivityModal({
     }
   }
 
+  const handleFormSubmit = async (createAnotherValue: boolean) => {
+    setCreateAnother(createAnotherValue)
+    const isValid = await form.trigger()
+    if (isValid) {
+      await form.handleSubmit(handleSubmit)()
+    }
+  }
+
   useEffect(() => {
     if (!open) {
       form.reset()
@@ -138,13 +141,13 @@ export function AddActivityModal({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
             <FormField
               control={form.control}
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>Title <span className="text-red-500">*</span></FormLabel>
                   <FormControl>
                     <Input placeholder="Enter activity title" {...field} />
                   </FormControl>
@@ -158,7 +161,7 @@ export function AddActivityModal({
               name="type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Type</FormLabel>
+                  <FormLabel>Type <span className="text-red-500">*</span></FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -169,8 +172,30 @@ export function AddActivityModal({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="task">Task</SelectItem>
-                      <SelectItem value="event">Event</SelectItem>
+                      <SelectItem value="task">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4" />
+                          <span>Task</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="meeting">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4" />
+                          <span>Meeting</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="call">
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-4 w-4" />
+                          <span>Call</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="email">
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          <span>Email</span>
+                        </div>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -206,9 +231,9 @@ export function AddActivityModal({
                       <FormControl>
                         <Button
                           variant={"outline"}
-                          className={
-                            "w-full pl-3 text-left font-normal"
-                          }
+                          className={`w-full pl-3 text-left font-normal ${
+                            !field.value && "text-muted-foreground"
+                          }`}
                         >
                           {field.value ? (
                             format(field.value, "PPP")
@@ -236,111 +261,85 @@ export function AddActivityModal({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="contact"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Related Contact</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select contact" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {contacts.map((contact) => (
-                        <SelectItem key={contact.id} value={contact.id}>
-                          {contact.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="assignedTo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Assigned To</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select team member" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {teamMembers.map((member) => (
-                        <SelectItem key={member.id} value={member.id}>
-                          {member.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="priority"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Priority</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select priority" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="createAnother"
-                checked={createAnother}
-                onCheckedChange={(checked) => setCreateAnother(checked as boolean)}
+            <div className="grid grid-cols-2 gap-4 pb-4">
+              <FormField
+                control={form.control}
+                name="contact"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contact</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select contact" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {contacts.map((contact) => (
+                          <SelectItem key={contact.id} value={contact.id}>
+                            {contact.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              <label
-                htmlFor="createAnother"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Create another
-              </label>
+
+              <FormField
+                control={form.control}
+                name="assignedTo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assigned To</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select team member" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {teamMembers.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>
+                            {member.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="gap-2">
+              <button
+                type="button"
+                onClick={() => onOpenChange(false)}
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Cancel
+              </button>
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={() => handleFormSubmit(true)}
+                disabled={isSubmitting}
               >
-                Cancel
+                {isSubmitting ? "Creating..." : "Create & New"}
               </Button>
-              <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
+              <Button
+                type="button"
+                onClick={() => handleFormSubmit(false)}
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

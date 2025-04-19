@@ -107,7 +107,7 @@ export function AddOpportunityModal({
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Name <span className="text-red-500">*</span></FormLabel>
                   <FormControl>
                     <Input placeholder="Enter opportunity name" {...field} />
                   </FormControl>
@@ -120,7 +120,7 @@ export function AddOpportunityModal({
               name="customer"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Customer</FormLabel>
+                  <FormLabel>Customer <span className="text-red-500">*</span></FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -142,7 +142,7 @@ export function AddOpportunityModal({
                 name="pipeline"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Pipeline</FormLabel>
+                    <FormLabel>Pipeline <span className="text-red-500">*</span></FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -163,7 +163,7 @@ export function AddOpportunityModal({
                 name="stage"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Stage</FormLabel>
+                    <FormLabel>Stage <span className="text-red-500">*</span></FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -215,7 +215,7 @@ export function AddOpportunityModal({
                 name="expectedCloseDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Expected Close Date</FormLabel>
+                    <FormLabel>Expected Close Date <span className="text-red-500">*</span></FormLabel>
                     <FormControl>
                       <Input type="date" {...field} />
                     </FormControl>
@@ -228,7 +228,7 @@ export function AddOpportunityModal({
                 name="assignedTo"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Assigned To</FormLabel>
+                    <FormLabel>Assigned To <span className="text-red-500">*</span></FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
