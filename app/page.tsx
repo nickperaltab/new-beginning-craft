@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowUpRight, Calendar, CheckCircle, ChevronRight, Clock, DollarSign, FileText, Mail, Sparkles, UserPlus } from "lucide-react"
+import { ArrowUpRight, Calendar, CheckCircle, ChevronRight, Clock, DollarSign, FileText, Mail, Sparkles, UserPlus, Wrench } from "lucide-react"
 import Link from "next/link"
 import { DashboardMetrics } from "@/components/dashboard-metrics"
 import { RecentWorkOrders } from "@/components/recent-work-orders"
 import { UpcomingVisits } from "@/components/upcoming-visits"
+import { InsightsConfigDialog } from "@/components/insights-config-dialog"
 
 export default function Dashboard() {
   return (
@@ -19,14 +20,22 @@ export default function Dashboard() {
         <div className="relative bg-gradient-to-r from-blue-50/[0.02] via-purple-50/[0.02] to-teal-50/[0.02] m-[3px] p-6 rounded-lg z-[1]">
           <div className="absolute inset-0 bg-white/95 rounded-lg" />
           <div className="relative z-[2]">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="h-5 w-5 text-blue-500" />
-              <h2 className="text-xl font-semibold">John's daily insights</h2>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-blue-500" />
+                <h2 className="text-xl font-semibold">John's daily insights</h2>
+              </div>
+              <InsightsConfigDialog>
+                <Button variant="secondary" size="sm" className="h-8 gap-2">
+                  <Wrench className="h-4 w-4" />
+                  Configure
+                </Button>
+              </InsightsConfigDialog>
             </div>
             <p className="text-muted-foreground mb-6 text-sm">
               You have several important tasks that need your attention today
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <Button variant="outline" className="justify-start gap-2 py-3 group bg-white hover:bg-white/90">
                 <FileText className="h-4 w-4 text-blue-500" />
                 <span className="flex-1 text-left">Send 3 invoice reminders</span>
@@ -35,11 +44,6 @@ export default function Dashboard() {
               <Button variant="outline" className="justify-start gap-2 py-3 group bg-white hover:bg-white/90">
                 <Mail className="h-4 w-4 text-orange-500" />
                 <span className="flex-1 text-left">Follow up with 8 customers</span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
-              </Button>
-              <Button variant="outline" className="justify-start gap-2 py-3 group bg-white hover:bg-white/90">
-                <UserPlus className="h-4 w-4 text-blue-500" />
-                <span className="flex-1 text-left">Contact 3 post-meeting customers</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
               </Button>
               <Button variant="outline" className="justify-start gap-2 py-3 group bg-white hover:bg-white/90">

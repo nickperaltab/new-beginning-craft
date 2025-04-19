@@ -127,7 +127,7 @@ export function Sidebar({ isCollapsed, onCollapse }: SidebarProps) {
                 className={cn(
                   "w-full justify-start rounded-none text-white hover:bg-transparent hover:text-[#8ab4f8]",
                   isCollapsed ? "px-[17px]" : "px-3 gap-2",
-                  isActive && "bg-[#0066ff] hover:bg-[#0066ff] hover:text-white",
+                  isActive && "bg-[#064499] hover:bg-[#064499] hover:text-white",
                 )}
               >
                 <Icon className="h-5 w-5 flex-shrink-0" />

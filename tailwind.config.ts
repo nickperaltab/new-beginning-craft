@@ -1,13 +1,14 @@
 import type { Config } from "tailwindcss"
 
-const config: Config = {
+const config = {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "*.{js,ts,jsx,tsx,mdx}",
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
   ],
+  prefix: "",
   theme: {
     container: {
       center: true,
@@ -24,8 +25,8 @@ const config: Config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#1E40AF", // Blue-700
-          foreground: "#FFFFFF",
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -51,11 +52,6 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sidebar: {
-          DEFAULT: "#001a5c", // Dark blue from the image
-          hover: "#0a2a6c", // Slightly lighter blue for hover states
-          active: "#0066ff", // Bright blue for active state
-        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -79,7 +75,7 @@ const config: Config = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+} satisfies Config
 
 export default config
 
