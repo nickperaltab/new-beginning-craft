@@ -26,6 +26,7 @@ import {
   TrendingDown,
   Building2,
   User,
+  Wrench,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -52,10 +53,11 @@ import {
 import { Progress } from "@/components/ui/progress"
 import { TooltipWithGlow } from "../components/ui/tooltip-with-glow"
 import { AddCustomerModal } from "../components/customers/add-customer-modal"
+import { InsightsConfigDialog } from "@/components/insights-config-dialog"
 
 export default function CustomersPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState("all")
+  const [selectedCustomerFilter, setSelectedCustomerFilter] = useState("all")
   const [selectedLocation, setSelectedLocation] = useState("all")
   const [viewType, setViewType] = useState<"customers" | "companies">("customers")
   const [showAddModal, setShowAddModal] = useState(false)
@@ -393,16 +395,17 @@ export default function CustomersPage() {
     }
   ])
 
-  // Filter customers based on search query and status
+  // Filter customers based on search query and customer filter
   const filteredCustomers = customers.filter((customer) => {
     const matchesSearch =
       customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.contactPerson.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchQuery.toLowerCase())
 
-    const matchesStatus = selectedStatus === "all" || customer.status === selectedStatus
+    // For now, we'll just return true for the customer filter since we don't have the assigned customer data
+    const matchesCustomerFilter = selectedCustomerFilter === "all" || true
 
-    return matchesSearch && matchesStatus
+    return matchesSearch && matchesCustomerFilter
   }).sort((a, b) => {
     // Define status priority order
     const statusPriority: Record<string, number> = {
@@ -546,24 +549,22 @@ export default function CustomersPage() {
 
     return (
       <div className="flex items-center gap-2">
+        <span className="font-medium text-[14px]">{score}%</span>
         <Progress value={score} className="w-[80px] h-[8px] [&>.bg-primary]:bg-[#1E40AF] [&>.bg-primary]:!opacity-100 bg-[#1E40AF]/20" />
-        <div className="flex items-center gap-1">
-          <span className="font-medium text-[14px]">{score}%</span>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                {trend > 0 ? (
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                ) : (
-                  <TrendingDown className="h-4 w-4 text-red-500" />
-                )}
-              </TooltipTrigger>
-              <TooltipContent className="py-2 px-3">
-                <p className="text-sm">{trendTooltip}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              {trend > 0 ? (
+                <TrendingUp className="h-4 w-4 text-green-500" />
+              ) : (
+                <TrendingDown className="h-4 w-4 text-red-500" />
+              )}
+            </TooltipTrigger>
+            <TooltipContent className="py-2 px-3">
+              <p className="text-sm">{trendTooltip}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     )
   }
@@ -610,12 +611,18 @@ export default function CustomersPage() {
               <th className="py-3 px-4 text-left font-medium">
                 {viewType === "customers" ? "Contact" : "Main Contact"}
               </th>
-              <th className="py-3 px-4 text-left font-medium">Location</th>
               {viewType === "companies" && (
-                <th className="py-3 px-4 text-left font-medium">Total Spent</th>
+                <th className="py-3 px-4 text-left font-medium">Lifetime Value</th>
               )}
               <th className="py-3 px-4 text-left font-medium">Tags</th>
-              <th className="py-3 px-4 text-left font-medium">Priority</th>
+              <th className="py-3 px-4 text-left font-medium">
+                <div className="flex items-center gap-2">
+                  Priority
+                  <InsightsConfigDialog>
+                    <Wrench className="h-4 w-4 text-muted-foreground hover:text-foreground transition-colors cursor-pointer" />
+                  </InsightsConfigDialog>
+                </div>
+              </th>
               <th className="py-3 px-4 text-left font-medium">Health Score</th>
               <th className="py-3 px-4 text-left font-medium">Actions</th>
             </tr>
@@ -724,11 +731,6 @@ export default function CustomersPage() {
                     <div className="text-xs text-muted-foreground">{customer.phone}</div>
                   </td>
                   <td className="py-3 px-4">
-                    <div className="text-sm">
-                      {customer.city}, {customer.state}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
                     <div className="flex flex-wrap gap-2">
                       {customer.tags.map((tag) => (
                         <Badge key={tag} variant="outline" className="font-medium bg-white text-gray-500 border-gray-200">
@@ -805,11 +807,6 @@ export default function CustomersPage() {
                     <div className="text-sm">{company.mainContact}</div>
                   </td>
                   <td className="py-3 px-4">
-                    <div className="text-sm">
-                      {company.city}, {company.state}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
                       <TooltipProvider>
                         <Tooltip>
@@ -845,7 +842,7 @@ export default function CustomersPage() {
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex flex-wrap gap-2">
-                      {company.tags.map((tag) => (
+                      {company.tags.slice(0, 1).map((tag) => (
                         <Badge key={tag} variant="outline" className="font-medium bg-white text-gray-500 border-gray-200">
                           {tag}
                         </Badge>
@@ -990,27 +987,13 @@ export default function CustomersPage() {
             />
           </div>
           <div className="flex gap-2">
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+            <Select value={selectedCustomerFilter} onValueChange={setSelectedCustomerFilter}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder="All Customers" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="urgent">Urgent</SelectItem>
-                <SelectItem value="crucial">Crucial</SelectItem>
-                <SelectItem value="none">None</SelectItem>
-                <SelectItem value="inactive">Inactive</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Locations</SelectItem>
-                <SelectItem value="metropolis">Metropolis</SelectItem>
-                <SelectItem value="silicon-valley">Silicon Valley</SelectItem>
-                <SelectItem value="riverside">Riverside</SelectItem>
+                <SelectItem value="all">All Customers</SelectItem>
+                <SelectItem value="assigned">Assigned to Me</SelectItem>
               </SelectContent>
             </Select>
             <Button variant="outline" size="icon">

@@ -52,7 +52,6 @@ import * as z from "zod"
 
 export default function VendorsPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedLocation, setSelectedLocation] = useState("all")
   const [viewType, setViewType] = useState<"vendors" | "companies">("vendors")
   const [vendors] = useState([
     {
@@ -359,7 +358,6 @@ export default function VendorsPage() {
               <th className="py-3 px-4 text-left font-medium">
                 {viewType === "vendors" ? "Contact" : "Main Contact"}
               </th>
-              <th className="py-3 px-4 text-left font-medium">Location</th>
               {viewType === "companies" && (
                 <th className="py-3 px-4 text-left font-medium">Total Spent</th>
               )}
@@ -408,11 +406,6 @@ export default function VendorsPage() {
                   <td className="py-3 px-4">
                     <div className="text-sm">{vendor.email}</div>
                     <div className="text-xs text-muted-foreground">{vendor.phone}</div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="text-sm">
-                      {vendor.city}, {vendor.state}
-                    </div>
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex flex-wrap gap-2">
@@ -483,11 +476,6 @@ export default function VendorsPage() {
                   </td>
                   <td className="py-3 px-4">
                     <div className="text-sm">{company.mainContact}</div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="text-sm">
-                      {company.city}, {company.state}
-                    </div>
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
@@ -637,23 +625,14 @@ export default function VendorsPage() {
               className="pl-8"
             />
           </div>
-          <div className="flex gap-2">
-            <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Locations</SelectItem>
-                <SelectItem value="commerce">Commerce</SelectItem>
-                <SelectItem value="san-jose">San Jose</SelectItem>
-                <SelectItem value="phoenix">Phoenix</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" size="icon">
-              <Filter className="h-4 w-4" />
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm">
+              <Filter className="mr-2 h-4 w-4" />
+              My vendors
             </Button>
-            <Button variant="outline" size="icon">
-              <Settings className="h-4 w-4" />
+            <Button variant="outline" size="sm">
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
             </Button>
           </div>
         </div>

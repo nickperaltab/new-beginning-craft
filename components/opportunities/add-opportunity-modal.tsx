@@ -50,15 +50,22 @@ type FormValues = z.infer<typeof formSchema>
 interface AddOpportunityModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onSubmit: (values: FormValues) => Promise<void>
+  onSubmit: (values: FormValues, createAnother: boolean) => Promise<void>
+  customers: Array<{ id: string; name: string }>
+  pipelines: Array<{ id: string; name: string }>
+  stages: Array<{ id: string; name: string }>
+  teamMembers: Array<{ id: string; name: string }>
 }
 
 export function AddOpportunityModal({
   open,
   onOpenChange,
   onSubmit,
+  customers,
+  pipelines,
+  stages,
+  teamMembers,
 }: AddOpportunityModalProps) {
-  const [createAnother, setCreateAnother] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<FormValues>({
@@ -79,11 +86,9 @@ export function AddOpportunityModal({
   const handleSubmit = async (values: FormValues) => {
     try {
       setIsSubmitting(true)
-      await onSubmit(values)
+      await onSubmit(values, false)
       form.reset()
-      if (!createAnother) {
-        onOpenChange(false)
-      }
+      onOpenChange(false)
     } catch (error) {
       console.error("Failed to submit opportunity:", error)
     } finally {
@@ -128,8 +133,11 @@ export function AddOpportunityModal({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="customer1">Customer 1</SelectItem>
-                      <SelectItem value="customer2">Customer 2</SelectItem>
+                      {customers.map((customer) => (
+                        <SelectItem key={customer.id} value={customer.id}>
+                          {customer.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -150,8 +158,11 @@ export function AddOpportunityModal({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="sales">Sales Pipeline</SelectItem>
-                        <SelectItem value="marketing">Marketing Pipeline</SelectItem>
+                        {pipelines.map((pipeline) => (
+                          <SelectItem key={pipeline.id} value={pipeline.id}>
+                            {pipeline.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -171,9 +182,11 @@ export function AddOpportunityModal({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="qualification">Qualification</SelectItem>
-                        <SelectItem value="proposal">Proposal</SelectItem>
-                        <SelectItem value="negotiation">Negotiation</SelectItem>
+                        {stages.map((stage) => (
+                          <SelectItem key={stage.id} value={stage.id}>
+                            {stage.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -236,8 +249,11 @@ export function AddOpportunityModal({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="user1">User 1</SelectItem>
-                        <SelectItem value="user2">User 2</SelectItem>
+                        {teamMembers.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>
+                            {member.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -258,23 +274,14 @@ export function AddOpportunityModal({
                 </FormItem>
               )}
             />
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="createAnother"
-                checked={createAnother}
-                onCheckedChange={(checked) => setCreateAnother(checked as boolean)}
-              />
-              <label
-                htmlFor="createAnother"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            <DialogFooter className="flex justify-between items-center">
+              <button
+                type="button"
+                onClick={() => onOpenChange(false)}
+                className="text-sm text-muted-foreground hover:text-foreground"
               >
-                Create another opportunity
-              </label>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
-              </Button>
+              </button>
               <Button type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Creating..." : "Create"}
               </Button>

@@ -32,7 +32,7 @@ export function useSidebar() {
 }
 
 const navItems = [
-  { name: "Home", href: "/", icon: Home },
+  { name: "Dashboard", href: "/", icon: Home },
   { name: "Customers", href: "/customers", icon: Users },
   { name: "Activities", href: "/activities", icon: ListChecks },
   { name: "Opportunities", href: "/opportunities", icon: BarChart2 },

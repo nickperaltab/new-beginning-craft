@@ -429,19 +429,19 @@ export default function ExistingCompanyPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Health Score</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle>Health Score</CardTitle>
+                <div className="flex items-center gap-1 text-green-600">
+                  <TrendingUp className="h-4 w-4" />
+                  <span className="text-sm">+{company.healthScoreTrend}%</span>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Progress value={company.healthScore} className="w-[100px]" />
-                    <span className="font-medium">{company.healthScore}%</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-green-600">
-                    <TrendingUp className="h-4 w-4" />
-                    <span className="text-sm">+{company.healthScoreTrend}%</span>
-                  </div>
+                <div className="flex items-center gap-4">
+                  <Progress value={company.healthScore} className="flex-1 h-2" />
+                  <span className="font-medium text-lg">{company.healthScore}%</span>
                 </div>
                 <div className="h-[200px] w-full">
                   <ResponsiveContainer width="100%" height="100%">

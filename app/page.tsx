@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ArrowUpRight, Calendar, CheckCircle, ChevronRight, Clock, DollarSign, FileText, Mail, Sparkles, UserPlus, Wrench } from "lucide-react"
@@ -6,8 +9,13 @@ import { DashboardMetrics } from "@/components/dashboard-metrics"
 import { RecentWorkOrders } from "@/components/recent-work-orders"
 import { UpcomingVisits } from "@/components/upcoming-visits"
 import { InsightsConfigDialog } from "@/components/insights-config-dialog"
+import { InvoiceRemindersModal } from "@/components/invoice-reminders-modal"
+import { useRouter } from "next/navigation"
 
 export default function Dashboard() {
+  const [showInvoiceReminders, setShowInvoiceReminders] = useState(false)
+  const router = useRouter()
+
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex flex-col gap-2">
@@ -36,17 +44,29 @@ export default function Dashboard() {
               You have several important tasks that need your attention today
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              <Button variant="outline" className="justify-start gap-2 py-3 group bg-white hover:bg-white/90">
+              <Button 
+                variant="outline" 
+                className="justify-start gap-2 py-3 group bg-white hover:bg-white/90"
+                onClick={() => setShowInvoiceReminders(true)}
+              >
                 <FileText className="h-4 w-4 text-blue-500" />
                 <span className="flex-1 text-left">Send 3 invoice reminders</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
               </Button>
-              <Button variant="outline" className="justify-start gap-2 py-3 group bg-white hover:bg-white/90">
+              <Button 
+                variant="outline" 
+                className="justify-start gap-2 py-3 group bg-white hover:bg-white/90"
+                onClick={() => router.push("/customers")}
+              >
                 <Mail className="h-4 w-4 text-orange-500" />
                 <span className="flex-1 text-left">Follow up with 8 customers</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
               </Button>
-              <Button variant="outline" className="justify-start gap-2 py-3 group bg-white hover:bg-white/90">
+              <Button 
+                variant="outline" 
+                className="justify-start gap-2 py-3 group bg-white hover:bg-white/90"
+                onClick={() => router.push("/activities?view=list")}
+              >
                 <Clock className="h-4 w-4 text-purple-500" />
                 <span className="flex-1 text-left">View 4 overdue tasks</span>
                 <ChevronRight className="h-4 w-4 text-muted-foreground opacity-70 group-hover:opacity-100" />
@@ -168,6 +188,11 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <InvoiceRemindersModal
+        open={showInvoiceReminders}
+        onOpenChange={setShowInvoiceReminders}
+      />
     </div>
   )
 }

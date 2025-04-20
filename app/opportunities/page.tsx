@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils"
 import { AddOpportunityModal } from "@/components/opportunities/add-opportunity-modal"
 import { toast } from "@/components/ui/use-toast"
+import { useRouter } from 'next/navigation'
 
 // Define the pipeline stages
 const pipelineStages = [
@@ -97,6 +98,7 @@ interface Opportunity {
 }
 
 export default function OpportunitiesPage() {
+  const router = useRouter()
   const [opportunities, setOpportunities] = useState<Opportunity[]>(initialOpportunities)
   const [showAddModal, setShowAddModal] = useState(false)
 
@@ -150,25 +152,29 @@ export default function OpportunitiesPage() {
         title: values.name,
         company: mockCustomers.find(c => c.id === values.customer)?.name || "",
         value: parseFloat(values.amount) || 0,
-        expectedCloseDate: values.expectedCloseDate.toISOString(),
+        expectedCloseDate: values.expectedCloseDate,
         stage: values.stage || "lead",
         probability: parseInt(values.probability) || 0,
-      }
+      };
       
-      setOpportunities([...opportunities, newOpportunity])
+      setOpportunities([...opportunities, newOpportunity]);
       
       toast({
         title: "Success",
         description: "Opportunity created successfully",
-      })
+      });
     } catch (error) {
-      console.error("Error creating opportunity:", error)
+      console.error("Error creating opportunity:", error);
       toast({
         title: "Error",
         description: "Failed to create opportunity",
         variant: "destructive",
-      })
+      });
     }
+  };
+
+  const handleOpportunityClick = (oppId: string) => {
+    router.push(`/opportunity-details/${oppId}`)
   }
 
   // Format currency
@@ -216,7 +222,15 @@ export default function OpportunitiesPage() {
                           ({opportunities.filter(opp => opp.stage === stage.id).length})
                         </span>
                       </div>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowAddModal(true);
+                        }}
+                      >
                         <Plus className="h-4 w-4" />
                       </Button>
                     </div>
@@ -239,19 +253,25 @@ export default function OpportunitiesPage() {
                                     {...provided.draggableProps}
                                     {...provided.dragHandleProps}
                                     className="mb-2 cursor-pointer hover:shadow-md transition-shadow"
+                                    onClick={() => handleOpportunityClick(opp.id)}
                                   >
                                     <CardContent className="p-4">
                                       <div className="flex justify-between items-start mb-2">
                                         <h3 className="font-medium line-clamp-2">{opp.title}</h3>
                                         <DropdownMenu>
                                           <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+                                            <Button 
+                                              variant="ghost" 
+                                              size="icon" 
+                                              className="h-8 w-8 shrink-0"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
                                               <MoreHorizontal className="h-4 w-4" />
                                             </Button>
                                           </DropdownMenuTrigger>
                                           <DropdownMenuContent align="end">
-                                            <DropdownMenuItem>Edit</DropdownMenuItem>
-                                            <DropdownMenuItem>Delete</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={(e) => e.stopPropagation()}>Edit</DropdownMenuItem>
+                                            <DropdownMenuItem onClick={(e) => e.stopPropagation()}>Delete</DropdownMenuItem>
                                           </DropdownMenuContent>
                                         </DropdownMenu>
                                       </div>
